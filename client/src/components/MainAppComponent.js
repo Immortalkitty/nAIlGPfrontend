@@ -14,7 +14,7 @@ let nextId = 1;
 
 const MainAppComponent = () => {
     const [results, setResults] = useState([]);
-    const [gigaState, setGigaState] = useState(false);
+    const [imageTransitionState, setImageTransitionState] = useState(false);
     const fileInputRef = useRef(null);
     const showHomeTitlesFlag = useRef(false);
     const isImageBeingProcessed = useRef(false);
@@ -52,7 +52,7 @@ const MainAppComponent = () => {
     useEffect(() => {
         if (showHomeTitlesFlag.current) {
             showHomeTitlesFlag.current = false;
-            setGigaState(true);
+            setImageTransitionState(true);
             setResults(results => [...results, image]);
 
             // Send data to the server
@@ -91,7 +91,7 @@ const MainAppComponent = () => {
     const handleImageChange = async (e) => {
         if (!loadCNNModel) return;  // Check if the model is loaded
         isImageBeingProcessed.current = true;
-        setGigaState(false);
+        setImageTransitionState(false);
         const fileURL = URL.createObjectURL(e.target.files[0]); // Create URL once and reuse
 
         try {
@@ -128,7 +128,7 @@ const MainAppComponent = () => {
                         <CircularProgress />
                     }
                     <CSSTransition
-                        in={gigaState}
+                        in={imageTransitionState}
                         classNames="my-node"
                         timeout={{
                             appear: 1000,
@@ -136,10 +136,10 @@ const MainAppComponent = () => {
                             exit: 1000,
                         }}
                     >
-                        {gigaState ? <SingleImage image={image} /> : <React.Fragment />}
+                        {imageTransitionState ? <SingleImage image={image} /> : <React.Fragment />}
                     </CSSTransition>
 
-                    {!(gigaState || !!results.length) &&
+                    {!(imageTransitionState || !!results.length) &&
                         <>
                             <HomeAppTitles />
                         </>
