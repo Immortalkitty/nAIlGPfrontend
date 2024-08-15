@@ -14,19 +14,32 @@ const ProfileForm = ({ handleHomeClick }) => {
 
     const handleRegister = async () => {
         try {
-            await axios.post('http://localhost:3001/auth/register', { email: registerEmail, password: registerPassword }, { withCredentials: true });
+            await axios.post('http://localhost:5000/auth/register',
+                { email: registerEmail, password: registerPassword },
+                { withCredentials: true }
+            );
             alert('User registered successfully');
+            setRegisterEmail('');
+            setRegisterPassword('');
+            setRegisterError('');
         } catch (error) {
-            setRegisterError(error.response.data);
+            setRegisterError(error.response?.data?.error || 'Registration failed');
         }
     };
 
     const handleLogin = async () => {
         try {
-            await axios.post('http://localhost:3001/auth/login', { email: loginEmail, password: loginPassword }, { withCredentials: true });
+            await axios.post('http://localhost:5000/auth/login',
+                { email: loginEmail, password: loginPassword },
+                { withCredentials: true }
+            );
             alert('User logged in successfully');
+            setLoginEmail('');
+            setLoginPassword('');
+            setLoginError('');
+            handleHomeClick(); // Navigate to home or another appropriate action after login
         } catch (error) {
-            setLoginError(error.response.data);
+            setLoginError(error.response?.data?.error || 'Login failed');
         }
     };
 
@@ -71,9 +84,6 @@ const ProfileForm = ({ handleHomeClick }) => {
                     >
                         Register
                     </Button>
-                    <Typography variant="subtitle1" align="center" gutterBottom sx={{ mt: 4 }}>
-                        Register with other service
-                    </Typography>
                 </Box>
                 <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
                 <Box sx={{ flex: 1, marginLeft: 2 }}>
@@ -106,9 +116,6 @@ const ProfileForm = ({ handleHomeClick }) => {
                     >
                         Login
                     </Button>
-                    <Typography variant="subtitle1" align="center" gutterBottom sx={{ mt: 4 }}>
-                        Login with other service
-                    </Typography>
                 </Box>
             </Box>
         </Container>

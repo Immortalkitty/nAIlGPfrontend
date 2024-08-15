@@ -1,13 +1,9 @@
 import { Box, Button, CircularProgress, Container, Paper, Stack, Typography } from '@mui/material';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ResultsGallery from './ResultsGallery';
 import SingleImage from './SingleImage';
 import HomeAppTitles from './HomeAppTitles';
 import { CSSTransition } from 'react-transition-group';
-import * as mobilenet from '@tensorflow-models/mobilenet';
-import * as tf from '@tensorflow/tfjs';
-import '@tensorflow/tfjs-backend-webgl';
-import '@tensorflow/tfjs-backend-cpu';
 import axios from 'axios';
 
 let nextId = 1;
@@ -15,26 +11,17 @@ let nextId = 1;
 const MainAppComponent = () => {
     const [results, setResults] = useState([]);
     const [imageTransitionState, setImageTransitionState] = useState(false);
+    const [image, setImage] = useState({ src: null, title: null, id: null, description: null, confidence: null });
+    const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
     const showHomeTitlesFlag = useRef(false);
     const isImageBeingProcessed = useRef(false);
-    const [loadCNNModel, setCNNModel] = useState(null);
-    const [image, setImage] = useState({ src: null, title: null, id: null, description: null, confidence: null });
 
     useEffect(() => {
-        // Set backend and load model
-        const loadModel = async () => {
-            await tf.setBackend('webgl');
-            await tf.ready();
-            const model = await mobilenet.load();
-            setCNNModel(model);
-        };
-        loadModel();
-
         // Fetch predictions from the server
         const fetchPredictions = async () => {
             try {
-                const response = await axios.get('http://localhost:3001/predictions/user-predictions', { withCredentials: true });
+                const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
                 const predictions = response.data.map(prediction => ({
                     src: prediction.image_src,
                     title: prediction.title,
@@ -55,64 +42,57 @@ const MainAppComponent = () => {
             setImageTransitionState(true);
             setResults(results => [...results, image]);
 
-            // Send data to the server
-            const formData = new FormData();
-            formData.append('image', fileInputRef.current.files[0]);
-            formData.append('title', image.title);
-            formData.append('confidence', image.confidence);
-
-            console.log('Sending data to server:', formData);
-
-            axios.post('http://localhost:3001/predictions/save', formData, {
-                withCredentials: true // Ensure credentials are sent with the request
-            })
-                .then(response => {
-                    console.log('Prediction saved:', response.data);
-                })
-                .catch(error => {
-                    console.error('Error saving prediction:', error.response ? error.response.data : error.message);
-                });
+            // The server-side save logic is handled after the prediction is made in `handleImageChange`,
+            // so no need to send it again here.
         }
     }, [image]);
 
-    const loadModelImage = (src) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.addEventListener('load', () => resolve(img));
-            img.addEventListener('error', (err) => reject(err));
-            img.src = src;
-        });
-    };
-
-    const capitalizeFirstLetter = (string) => {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    };
-
     const handleImageChange = async (e) => {
-        if (!loadCNNModel) return;  // Check if the model is loaded
+        setError(null); // Reset error state
         isImageBeingProcessed.current = true;
         setImageTransitionState(false);
-        const fileURL = URL.createObjectURL(e.target.files[0]); // Create URL once and reuse
+        const file = e.target.files[0];
+        const fileURL = URL.createObjectURL(file); // Create URL for the preview
+
+        // Send image to the server for prediction
+        const formData = new FormData();
+        formData.append('image', file);
 
         try {
-            const img = await loadModelImage(fileURL);
-            const predictions = await loadCNNModel.classify(img);
+            const response = await axios.post('http://localhost:5000/predictions/predict', formData, {
+                withCredentials: true,
+            });
+            const { title, confidence, id, image_src } = response.data;
 
-            if (predictions && predictions.length > 0) {
-                setImage({
-                    id: nextId++,
-                    src: fileURL,
-                    title: capitalizeFirstLetter(predictions[0].className.split(',')[0]),
-                    confidence: parseFloat(predictions[0].probability).toFixed(2),
-                });
-                showHomeTitlesFlag.current = true; // Set flags or other state-related actions post-update
-            }
+            setImage({
+                id: id || nextId++, // Use the ID returned from the server if available
+                src: fileURL, // Display the uploaded image in the frontend
+                title: capitalizeFirstLetter(title),
+                confidence: parseFloat(confidence).toFixed(2),
+                description: '', // Add any description if available
+            });
+
+            showHomeTitlesFlag.current = true; // Set flags or other state-related actions post-update
         } catch (err) {
-            console.error(err);
+            console.error('Error during prediction:', err);
+            setError('Prediction failed. Please try again.'); // Update error state
         } finally {
             isImageBeingProcessed.current = false; // Ensure flag is reset even if there is an error
         }
     };
+
+    const capitalizeFirstLetter = useCallback((string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }, []);
+
+    // Clean up the object URL when the component unmounts or the image changes
+    useEffect(() => {
+        return () => {
+            if (image.src) {
+                URL.revokeObjectURL(image.src);
+            }
+        };
+    }, [image.src]);
 
     useEffect(() => {
         if (fileInputRef.current) {
@@ -124,9 +104,7 @@ const MainAppComponent = () => {
         <Container disableGutters sx={{ flex: "1", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm">
                 <Box sx={{ minHeight: "300px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {isImageBeingProcessed.current &&
-                        <CircularProgress />
-                    }
+                    {isImageBeingProcessed.current && <CircularProgress />}
                     <CSSTransition
                         in={imageTransitionState}
                         classNames="my-node"
@@ -145,6 +123,7 @@ const MainAppComponent = () => {
                         </>
                     }
                 </Box>
+                {error && <Typography color="error" align="center">{error}</Typography>} {/* Display error message if any */}
                 <Stack
                     sx={{ pt: 4 }}
                     direction="row"

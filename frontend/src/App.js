@@ -7,9 +7,9 @@ function App() {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        axios.get('/api')
+        axios.get('http://localhost:5000/api')
             .then(response => {
-                setMessage(response.data);
+                setMessage(response.data.message);  // Assuming Flask sends { "message": "your message" }
             })
             .catch(error => {
                 console.error('There was an error fetching the data!', error);
@@ -19,6 +19,7 @@ function App() {
     return (
         <div className="App">
             <BaseLayout />
+            {message && <p>{message}</p>}  {/* Display the fetched message */}
         </div>
     );
 }

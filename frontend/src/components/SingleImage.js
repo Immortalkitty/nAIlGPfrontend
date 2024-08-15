@@ -10,17 +10,17 @@ const SingleImage = ({ image }) => {
         return null; // Handle missing image data
     }
 
-    const formattedConfidence = (image.confidence * 100).toFixed(2) + "%";
+    const formattedConfidence = ((image.confidence || 0) * 100).toFixed(2) + "%";
 
     return (
         <Card
             sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: "opacity 500ms ease-in-out" }}
         >
             <CardMedia
-                sx={{ maxHeight: "500px" }}
+                sx={{ maxHeight: "500px", objectFit: "cover" }}
                 component="img"
                 image={image.src}
-                alt={image.title}
+                alt={image.title || 'Image preview'}
             />
             <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">
