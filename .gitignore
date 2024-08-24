@@ -44,7 +44,7 @@ jspm_packages/
 .yarn-integrity
 
 # dotenv environment variables file
-frontend/.env
+client/.env
 
 # MacOS
 .DS_Store

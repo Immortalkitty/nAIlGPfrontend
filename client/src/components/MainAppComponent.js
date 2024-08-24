@@ -66,7 +66,7 @@ const MainAppComponent = () => {
 
             setImage({
                 id: id || nextId++, // Use the ID returned from the server if available
-                src: fileURL, // Display the uploaded image in the frontend
+                src: fileURL, // Display the uploaded image in the client
                 title: capitalizeFirstLetter(title),
                 confidence: parseFloat(confidence).toFixed(2),
                 description: '', // Add any description if available

@@ -13,7 +13,7 @@ CREATE TABLE predictions (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE session (
+CREATE TABLE sessions (
     sid VARCHAR NOT NULL COLLATE "default",
     sess JSON NOT NULL,
     expire TIMESTAMP(6) NOT NULL,
