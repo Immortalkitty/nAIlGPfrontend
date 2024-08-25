@@ -11,14 +11,14 @@ let nextId = 1;
 const MainAppComponent = () => {
     const [results, setResults] = useState([]);
     const [imageTransitionState, setImageTransitionState] = useState(false);
-    const [image, setImage] = useState({ src: null, title: null, id: null, description: null, confidence: null });
+    const [image, setImage] = useState({ src: null, title: null, id: null, confidence: null });
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
     const showHomeTitlesFlag = useRef(false);
     const isImageBeingProcessed = useRef(false);
+    const nodeRef = useRef(null);  // Ref for CSSTransition
 
     useEffect(() => {
-        // Fetch predictions from the server
         const fetchPredictions = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
@@ -41,51 +41,72 @@ const MainAppComponent = () => {
             showHomeTitlesFlag.current = false;
             setImageTransitionState(true);
             setResults(results => [...results, image]);
-
-            // The server-side save logic is handled after the prediction is made in `handleImageChange`,
-            // so no need to send it again here.
         }
     }, [image]);
 
     const handleImageChange = async (e) => {
-        setError(null); // Reset error state
-        isImageBeingProcessed.current = true;
-        setImageTransitionState(false);
-        const file = e.target.files[0];
-        const fileURL = URL.createObjectURL(file); // Create URL for the preview
+    setError(null); // Reset error state
+    isImageBeingProcessed.current = true;
+    setImageTransitionState(false);
 
-        // Send image to the server for prediction
-        const formData = new FormData();
-        formData.append('image', file);
+    const file = e.target.files[0];
+    const fileURL = URL.createObjectURL(file);
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await axios.post('http://localhost:5000/predictions/predict', formData, {
+            withCredentials: true,
+        });
+        const { title, confidence, id, image_src } = response.data;
+
+        const newImage = {
+            id: id || nextId++,
+            src: fileURL,
+            title: capitalizeFirstLetter(title),
+            confidence: parseFloat(confidence).toFixed(2)
+        };
+
+        setImage(newImage);
+
 
         try {
-            const response = await axios.post('http://localhost:5000/predictions/predict', formData, {
+            const saveResponse = await axios.post('http://localhost:5000/predictions/save', {
+                title,
+                confidence,
+                image_src,
+            }, {
                 withCredentials: true,
             });
-            const { title, confidence, id, image_src } = response.data;
 
-            setImage({
-                id: id || nextId++, // Use the ID returned from the server if available
-                src: fileURL, // Display the uploaded image in the client
-                title: capitalizeFirstLetter(title),
-                confidence: parseFloat(confidence).toFixed(2),
-                description: '', // Add any description if available
-            });
-
-            showHomeTitlesFlag.current = true; // Set flags or other state-related actions post-update
-        } catch (err) {
-            console.error('Error during prediction:', err);
-            setError('Prediction failed. Please try again.'); // Update error state
-        } finally {
-            isImageBeingProcessed.current = false; // Ensure flag is reset even if there is an error
+            console.log('Prediction saved:', saveResponse.data);
+        } catch (saveError) {
+            if (saveError.response && saveError.response.status === 401) {
+                console.warn('Prediction not saved: User not authenticated.');
+                setError('Result not saved. Log in to save your predictions.');
+            } else {
+                console.error('Error saving prediction:', saveError);
+                setError('Error saving prediction.');
+            }
         }
-    };
+
+        showHomeTitlesFlag.current = true;
+        setImageTransitionState(true);
+    } catch (err) {
+        console.error('Error during prediction:', err);
+        setError('Prediction failed. Please try again.');
+    } finally {
+        isImageBeingProcessed.current = false;
+    }
+};
+
 
     const capitalizeFirstLetter = useCallback((string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }, []);
 
-    // Clean up the object URL when the component unmounts or the image changes
+
     useEffect(() => {
         return () => {
             if (image.src) {
@@ -113,8 +134,11 @@ const MainAppComponent = () => {
                             enter: 1000,
                             exit: 1000,
                         }}
+                        nodeRef={nodeRef}
                     >
-                        {imageTransitionState ? <SingleImage image={image} /> : <React.Fragment />}
+                        <div ref={nodeRef}>
+                            {imageTransitionState && <SingleImage image={image} />}
+                        </div>
                     </CSSTransition>
 
                     {!(imageTransitionState || !!results.length) &&
@@ -123,7 +147,7 @@ const MainAppComponent = () => {
                         </>
                     }
                 </Box>
-                {error && <Typography color="error" align="center">{error}</Typography>} {/* Display error message if any */}
+                {error && <Typography color="error" align="center">{error}</Typography>} {}
                 <Stack
                     sx={{ pt: 4 }}
                     direction="row"

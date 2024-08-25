@@ -1,18 +1,25 @@
 import os
-
 import tensorflow as tf
-from sqlalchemy.orm import sessionmaker
-from tensorflow.keras.applications.resnet50 import preprocess_input, decode_predictions
+from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.preprocessing import image as keras_image
 import numpy as np
-from sqlalchemy import text, create_engine
-
+from sqlalchemy import text
 
 class PredictionService:
-    def __init__(self, model_path, database_url):
-        self.model = tf.keras.models.load_model(model_path)
-        self.engine = create_engine(database_url)
-        self.Session = sessionmaker(bind=self.engine)
+    def __init__(self, model_path, db):
+        self.model_path = model_path
+        self.model = self.load_model()
+        self.db = db
+
+    def load_model(self):
+        try:
+            print(f"Loading model from {self.model_path}...")
+            model = tf.keras.models.load_model(self.model_path)
+            print("Model loaded successfully.")
+            return model
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            raise e
 
     def preprocess_image(self, image_path):
         if not os.path.exists(image_path):
@@ -38,7 +45,7 @@ class PredictionService:
         return predicted_class, confidence
 
     def save_prediction(self, user_id, filepath, title, confidence):
-        db_session = self.Session()
+        db_session = self.db.session
         try:
             query = text(
                 'INSERT INTO predictions (user_id, image_src, title, confidence) VALUES (:user_id, :image_src, :title, :confidence) RETURNING id'
@@ -51,14 +58,31 @@ class PredictionService:
             })
             db_session.commit()
             return result.fetchone()[0]
+        except Exception as e:
+            db_session.rollback()
+            print(f"Error saving prediction: {e}")
+            raise e
         finally:
             db_session.close()
 
     def get_user_predictions(self, user_id):
-        db_session = self.Session()
+        db_session = self.db.session
         try:
             query = text('SELECT * FROM predictions WHERE user_id = :user_id')
             result = db_session.execute(query, {'user_id': user_id})
-            return result.fetchall()
+
+            predictions = []
+            for row in result.fetchall():
+                predictions.append({
+                    'id': row[0],
+                    'user_id': row[1],
+                    'image_src': row[2],
+                    'title': row[3],
+                    'confidence': str(row[4]),
+                    'created_at': row[5].isoformat()
+                })
+            return predictions
         finally:
             db_session.close()
+
+
