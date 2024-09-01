@@ -15,6 +15,7 @@ def register():
         password = request.json.get('password')
 
         result = auth_service.register_user(email, password)
+        session['user_id'] = result['user_id']
         return jsonify({'message': 'User registered', 'user_id': result['user_id']}), 201
     except Exception as e:
         print(f"Error registering user: {e}")

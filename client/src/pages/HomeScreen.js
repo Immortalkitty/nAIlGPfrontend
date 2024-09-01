@@ -1,32 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, Container, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import HomeAppTitles from '../components/HomeAppTitles';
-import { uploadAndPredictImage } from '../utils/uploadAndPredict';  // Import the reusable function
-
-let nextId = 1;
 
 const HomeScreen = () => {
-    const [file, setFile] = useState(null);
-    const [error, setError] = useState(null);
-    const [image, setImage] = useState({ src: null, title: null, id: null, confidence: null });
     const navigate = useNavigate();
 
     const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+        const file = event.target.files[0];
+        if (file) {
+            // Navigate to the PredictionComponent, passing the file as a prop
+            navigate('/prediction', { state: { file } });
+        }
     };
 
-    const handleUploadClick = async () => {
-        if (!file) {
-            alert('Please select a file to upload');
-            return;
-        }
-
-        await uploadAndPredictImage(file, setImage, setError, () => {}, nextId);
-
-        if (!error) {
-            navigate('/prediction', { state: { image } });
-        }
+    const handleClick = () => {
+        document.getElementById('upload-file').click();
     };
 
     return (
@@ -38,7 +27,6 @@ const HomeScreen = () => {
                 <Stack
                     sx={{ pt: 4 }}
                     direction="row"
-                    spacing={2}
                     justifyContent="center"
                 >
                     <input
@@ -48,17 +36,7 @@ const HomeScreen = () => {
                         type="file"
                         onChange={handleFileChange}
                     />
-                    <label htmlFor="upload-file">
-                        <Button sx={{ background: '#0CC0DF' }} variant="contained" component="span">
-                            Choose Image
-                        </Button>
-                    </label>
-                    <Button
-                        sx={{ background: '#0CC0DF' }}
-                        variant="contained"
-                        onClick={handleUploadClick}
-                        disabled={!file}
-                    >
+                    <Button sx={{ background: '#0CC0DF' }} variant="contained" onClick={handleClick}>
                         Upload and Analyze
                     </Button>
                 </Stack>

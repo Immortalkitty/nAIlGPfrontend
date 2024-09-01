@@ -1,10 +1,7 @@
 import axios from 'axios';
 
 export const uploadAndPredictImage = async (file, setImage, setError, setResults, nextId) => {
-    setError(null); // Reset error state
-
-    const fileURL = URL.createObjectURL(file);
-
+    setError(null);
     const formData = new FormData();
     formData.append('image', file);
 
@@ -14,21 +11,23 @@ export const uploadAndPredictImage = async (file, setImage, setError, setResults
         });
 
         const { title, confidence, id, image_src } = response.data;
-
         const newImage = {
             id: id || nextId++,
-            src: fileURL,
+            src: image_src,
             title: capitalizeFirstLetter(title),
-            confidence: parseFloat(confidence).toFixed(2)
+            confidence: parseFloat(confidence).toFixed(2),
         };
 
         setImage(newImage);
+        setResults(prevResults => [...prevResults, newImage]);
+        console.log('Prediction response received:', response.data); // Log the response
 
+        // Now, save the prediction to the backend
         try {
             const saveResponse = await axios.post('http://localhost:5000/predictions/save', {
-                title,
-                confidence,
-                image_src,
+                title: newImage.title,
+                confidence: newImage.confidence,
+                image_src: newImage.src,
             }, {
                 withCredentials: true,
             });
@@ -43,9 +42,6 @@ export const uploadAndPredictImage = async (file, setImage, setError, setResults
                 setError('Error saving prediction.');
             }
         }
-
-        setResults(prevResults => [...prevResults, newImage]);
-
     } catch (err) {
         console.error('Error during prediction:', err);
         setError('Prediction failed. Please try again.');

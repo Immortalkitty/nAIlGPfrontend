@@ -5,6 +5,9 @@ from tensorflow.keras.preprocessing import image as keras_image
 import numpy as np
 from sqlalchemy import text
 
+from backend.config import Config
+
+
 class PredictionService:
     def __init__(self, model_path, db):
         self.model_path = model_path
@@ -34,6 +37,7 @@ class PredictionService:
         return img_array
 
     def predict(self, image_path):
+        image_path = os.path.join(Config.UPLOAD_FOLDER, image_path)
         img_array = self.preprocess_image(image_path)
         predictions = self.model.predict(img_array)
 

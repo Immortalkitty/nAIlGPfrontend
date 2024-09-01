@@ -17,12 +17,12 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <ProfilePage />,
-        children: [
-              {
-                path: 'history',
-                element: <UserHistoryPage />,
-              }
-            ],
+        // children: [
+        //       {
+        //         path: 'history',
+        //         element: <UserHistoryPage />,
+        //       }
+        //     ],
       },
       {
         path: 'prediction',

@@ -17,25 +17,27 @@ const Profile = () => {
 
     const [results, setResults] = useState([]);
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            const fetchPredictions = async () => {
-                try {
-                    const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
-                    const predictions = response.data.map(prediction => ({
-                        src: prediction.image_src,
-                        title: prediction.title,
-                        confidence: prediction.confidence,
-                        id: prediction.id
-                    }));
-                    setResults(predictions);
-                } catch (error) {
-                    console.error('Error fetching predictions:', error.response ? error.response.data : error.message);
-                }
-            };
-            fetchPredictions();
-        }
-    }, [isLoggedIn]);
+  useEffect(() => {
+    if (isLoggedIn) {
+        const fetchPredictions = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
+                const predictions = response.data.map(prediction => ({
+                    src: prediction.image_src,
+                    title: prediction.title,
+                    confidence: prediction.confidence,
+                    id: prediction.id
+                }));
+                console.log("Fetched predictions:", predictions);  // Add this line to check the data
+                setResults(predictions);
+            } catch (error) {
+                console.error('Error fetching predictions:', error.response ? error.response.data : error.message);
+            }
+        };
+        fetchPredictions();
+    }
+}, [isLoggedIn]);
+
 
     const handleRegister = async () => {
         try {
@@ -47,15 +49,17 @@ const Profile = () => {
             setRegisterEmail('');
             setRegisterPassword('');
             setRegisterError('');
+            // Automatically log the user in after successful registration
+            await handleLogin(registerEmail, registerPassword);
         } catch (error) {
             setRegisterError(error.response?.data?.error || 'Registration failed');
         }
     };
 
-    const handleLogin = async () => {
+    const handleLogin = async (email, password) => {
         try {
             await axios.post('http://localhost:5000/auth/login',
-                { email: loginEmail, password: loginPassword },
+                { email: email || loginEmail, password: password || loginPassword },
                 { withCredentials: true }
             );
             alert('User logged in successfully');
@@ -104,7 +108,7 @@ const Profile = () => {
                         password={loginPassword}
                         setEmail={setLoginEmail}
                         setPassword={setLoginPassword}
-                        handleSubmit={handleLogin}
+                        handleSubmit={() => handleLogin()}  // Modified to use handleLogin directly
                         error={loginError}
                         buttonLabel="Login"
                     />

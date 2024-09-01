@@ -1,4 +1,7 @@
-from flask import Blueprint, request, jsonify, session, current_app, send_from_directory
+from urllib.parse import unquote
+
+from flask import Blueprint, request, jsonify, session, current_app, send_from_directory, url_for
+from oauthlib.common import quote
 from werkzeug.exceptions import Unauthorized
 
 from file_service import FileService
@@ -21,11 +24,10 @@ def predict():
 
         if file and file_service.allowed_file(file.filename):
             filepath = file_service.save_file(file)
-            filepath = str(filepath).removeprefix(Config.UPLOAD_FOLDER)
-            filepath="/home/kasia/PycharmProjects/nAIlGPWeb/backend/uploads"+filepath
+            image_url = url_for('prediction.uploaded_file', filename=filepath, _external=True)
             try:
                 predicted_class, confidence = prediction_service.predict(filepath)
-                return jsonify({'title': predicted_class, 'confidence': str(confidence), 'image_src': filepath}), 200
+                return jsonify({'title': predicted_class, 'confidence': str(confidence), 'image_src': image_url}), 200
             except Exception as e:
                 print(f"Error during prediction: {e}")
                 return jsonify({'error': 'Error during prediction'}), 500
@@ -68,7 +70,8 @@ def user_predictions():
 @prediction_blueprint.route('/uploads/<filename>', methods=['GET'])
 def uploaded_file(filename):
     try:
-        return send_from_directory(Config.UPLOAD_FOLDER, filename)
+        decoded_filename = filename.rsplit('/', 1)[-1]
+        return send_from_directory(Config.UPLOAD_FOLDER, decoded_filename)
     except Exception as e:
         print(f"Error serving file {filename}: {e}")
         return jsonify({'error': 'File not found'}), 404

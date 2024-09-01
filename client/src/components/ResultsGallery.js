@@ -3,6 +3,7 @@ import React from 'react';
 import SingleImage from './SingleImage';
 
 const ResultsGallery = ({ results }) => {
+    console.log("Results passed to ResultsGallery:", results);
     return (
         <Grid container spacing={4}>
             {
