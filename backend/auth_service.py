@@ -49,3 +49,22 @@ class AuthService:
 
     def close(self):
         self.db.session.close()
+
+    def get_user_by_id(self, user_id):
+        db_session = self.db.session
+        try:
+            query = text('SELECT id, email FROM users WHERE id = :user_id')
+            result = db_session.execute(query, {'user_id': user_id})
+
+            row = result.fetchone()
+
+            if row:
+                user = {
+                    'id': row[0],
+                    'email': row[1]
+                }
+                return user
+            else:
+                return None
+        finally:
+            db_session.close()

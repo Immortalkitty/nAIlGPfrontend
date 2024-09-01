@@ -4,11 +4,12 @@ import SingleImage from './SingleImage';
 
 const ResultsGallery = ({ results }) => {
     console.log("Results passed to ResultsGallery:", results);
+
     return (
         <Grid container spacing={4}>
             {
                 results && results.length > 0 ? (
-                    results.map((result) => (
+                    results.slice().reverse().map((result) => (
                         <Grid item key={result.id} xs={12} sm={6} md={4}>
                             <SingleImage image={result} />
                         </Grid>

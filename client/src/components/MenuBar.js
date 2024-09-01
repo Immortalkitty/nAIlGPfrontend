@@ -21,7 +21,7 @@ const handleLogoutClick = async (setIsLoggedIn) => {
     }
 };
 
-function MenuBar({ isLoggedIn, setIsLoggedIn, onHelpClick }) {
+function MenuBar({ isLoggedIn, setIsLoggedIn, onHelpClick, username }) {
     return (
         <AppBar position="relative" component="header" sx={{ background: '#0CC0DF' }}>
             <Toolbar>
@@ -29,9 +29,14 @@ function MenuBar({ isLoggedIn, setIsLoggedIn, onHelpClick }) {
                     nAIlGP
                 </Typography>
                 {isLoggedIn && (
-                    <IconButton edge="end" color="inherit" aria-label="logout" onClick={() => handleLogoutClick(setIsLoggedIn)}>
-                        <ExitToAppIcon sx={{ mr: 2 }} />
-                    </IconButton>
+                    <>
+                        <Typography variant="body1" color="inherit" sx={{ mr: 2 }}>
+                            {username}
+                        </Typography>
+                        <IconButton edge="end" color="inherit" aria-label="logout" onClick={() => handleLogoutClick(setIsLoggedIn)}>
+                            <ExitToAppIcon sx={{ mr: 2 }} />
+                        </IconButton>
+                    </>
                 )}
                 <IconButton
                     edge="end"

@@ -2,10 +2,20 @@ from flask import Blueprint, request, session, jsonify, current_app
 
 auth_blueprint = Blueprint('auth', __name__)
 
+
 @auth_blueprint.route('/check-session', methods=['GET'])
 def check_session():
     logged_in = 'user_id' in session
     return jsonify({'loggedIn': logged_in}), 200
+
+@auth_blueprint.route('/get-username', methods=['GET'])
+def get_username():
+    if 'user_id' in session:
+        user_id = session['user_id']
+        user = current_app.auth_service.get_user_by_id(user_id)
+        return jsonify({'username': user['email']}), 200
+    return jsonify({'error': 'User not logged in'}), 401
+
 @auth_blueprint.route('/register', methods=['POST'])
 def register():
     auth_service = current_app.auth_service
@@ -20,6 +30,7 @@ def register():
     except Exception as e:
         print(f"Error registering user: {e}")
         return jsonify({'error': 'Error registering user'}), 400
+
 
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
@@ -39,6 +50,7 @@ def login():
     except Exception as e:
         print(f"Error logging in: {e}")
         return jsonify({'error': 'Error logging in'}), 400
+
 
 @auth_blueprint.route('/logout', methods=['GET'])
 def logout():

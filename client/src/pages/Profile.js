@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Container, Box, Divider, Typography } from '@mui/material';
+import {Container, Box, Divider, Typography, Paper} from '@mui/material';
 import axios from 'axios';
 import UserAuthForm from '../components/UserAuthForm';
 import ResultsGallery from '../components/ResultsGallery';
 
 const Profile = () => {
-    const { isLoggedIn, setIsLoggedIn } = useOutletContext(); // Use the context from Outlet
+    const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext(); // Include setUsername in context
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
     const [registerError, setRegisterError] = useState('');
@@ -17,27 +17,26 @@ const Profile = () => {
 
     const [results, setResults] = useState([]);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-        const fetchPredictions = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
-                const predictions = response.data.map(prediction => ({
-                    src: prediction.image_src,
-                    title: prediction.title,
-                    confidence: prediction.confidence,
-                    id: prediction.id
-                }));
-                console.log("Fetched predictions:", predictions);  // Add this line to check the data
-                setResults(predictions);
-            } catch (error) {
-                console.error('Error fetching predictions:', error.response ? error.response.data : error.message);
-            }
-        };
-        fetchPredictions();
-    }
-}, [isLoggedIn]);
-
+    useEffect(() => {
+        if (isLoggedIn) {
+            const fetchPredictions = async () => {
+                try {
+                    const response = await axios.get('http://localhost:5000/predictions/user-predictions', { withCredentials: true });
+                    const predictions = response.data.map(prediction => ({
+                        src: prediction.image_src,
+                        title: prediction.title,
+                        confidence: prediction.confidence,
+                        id: prediction.id
+                    }));
+                    console.log("Fetched predictions:", predictions);
+                    setResults(predictions);
+                } catch (error) {
+                    console.error('Error fetching predictions:', error.response ? error.response.data : error.message);
+                }
+            };
+            fetchPredictions();
+        }
+    }, [isLoggedIn]);
 
     const handleRegister = async () => {
         try {
@@ -67,55 +66,69 @@ const Profile = () => {
             setLoginPassword('');
             setLoginError('');
             setIsLoggedIn(true);
+
+            // Refetch the username after login
+            const usernameResponse = await axios.get('http://localhost:5000/auth/get-username', { withCredentials: true });
+            if (usernameResponse.status === 200) {
+                setUsername(usernameResponse.data.username);
+            }
         } catch (error) {
             setLoginError(error.response?.data?.error || 'Login failed');
         }
     };
 
     return (
-        <Container maxWidth="md">
-            {isLoggedIn ? (
-                <Box sx={{ padding: 2 }}>
-                    <Typography variant="h4" align="center" gutterBottom>
-                        Your Predictions
-                    </Typography>
+    <Container maxWidth="md">
+        {isLoggedIn ? (
+            <Box sx={{ padding: 1 }}>
+                <Typography variant="h4" align="center" sx={{ marginBottom: 1, marginTop: 3 }}>
+                    Welcome, {username}! {/* Display the username */}
+                </Typography>
+
+                <Typography sx={{ marginBottom: 6}} align="center" variant="h4" component="h3">
+                    Your Previous Predictions:
+                </Typography>
+
+                <Paper elevation={3} sx={{ p: 4, background: '#0CC0DF' }}>
                     <ResultsGallery results={results} />
-                </Box>
-            ) : (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        padding: 2,
-                        borderRadius: 2,
-                    }}
-                >
-                    <UserAuthForm
-                        title="Register via nAIlGP"
-                        email={registerEmail}
-                        password={registerPassword}
-                        setEmail={setRegisterEmail}
-                        setPassword={setRegisterPassword}
-                        handleSubmit={handleRegister}
-                        error={registerError}
-                        buttonLabel="Register"
-                    />
-                    <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
-                    <UserAuthForm
-                        title="Login via nAIlGP"
-                        email={loginEmail}
-                        password={loginPassword}
-                        setEmail={setLoginEmail}
-                        setPassword={setLoginPassword}
-                        handleSubmit={() => handleLogin()}  // Modified to use handleLogin directly
-                        error={loginError}
-                        buttonLabel="Login"
-                    />
-                </Box>
-            )}
-        </Container>
-    );
+                </Paper>
+            </Box>
+        ) : (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    padding: 2,
+                    borderRadius: 2,
+                }}
+            >
+                <UserAuthForm
+                    title="Register via nAIlGP"
+                    email={registerEmail}
+                    password={registerPassword}
+                    setEmail={setRegisterEmail}
+                    setPassword={setRegisterPassword}
+                    handleSubmit={handleRegister}
+                    error={registerError}
+                    buttonLabel="Register"
+                />
+                <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+                <UserAuthForm
+                    title="Login via nAIlGP"
+                    email={loginEmail}
+                    password={loginPassword}
+                    setEmail={setLoginEmail}
+                    setPassword={setLoginPassword}
+                    handleSubmit={() => handleLogin()}  // Use handleLogin directly
+                    error={loginError}
+                    buttonLabel="Login"
+                />
+            </Box>
+        )}
+    </Container>
+);
+
 };
 
 export default Profile;
