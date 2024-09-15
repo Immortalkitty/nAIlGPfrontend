@@ -1,12 +1,50 @@
-import classes from '../App.css';
+import { motion } from 'framer-motion';
+import Typography from "@mui/material/Typography";
+import React from "react";
 
-function ErrorPageContent({ title, children }) {
-  return (
-    <div className={classes.AppResults}>
-      <h1>{title}</h1>
-      {children}
-    </div>
-  );
+const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.5 } },
+};
+
+function ErrorPageContent({ title, message }) {
+    return (
+        <motion.div
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={fadeInUpVariants}
+            style={{ textAlign: "center", marginTop: "100px" }}
+        >
+            <Typography
+                component="h2"
+                variant="h2"
+                align="center"
+                color="text.primary"
+                noWrap
+            >
+                {title}
+            </Typography>
+
+            <motion.div
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={fadeInUpVariants}
+            >
+                <Typography
+                    component="h4"
+                    variant="h4"
+                    align="center"
+                    color="text.secondary"
+                    paragraph
+                >
+                    {message}
+                </Typography>
+            </motion.div>
+        </motion.div>
+    );
 }
 
 export default ErrorPageContent;

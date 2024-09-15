@@ -1,20 +1,32 @@
-import { CardContent, Typography, Card, CardMedia } from '@mui/material';
-import React, { useEffect } from 'react';
+import { CardContent, Typography, Card, CardMedia, LinearProgress, Box, Tooltip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 
-const SingleImage = ({ image }) => {
+const SingleImage = ({ image, onClick }) => {
+    const [progress, setProgress] = useState(0);
+
     useEffect(() => {
-        console.log(image);
+        const timer = setTimeout(() => {
+            setProgress((image.confidence || 0) * 100);
+        }, 300);
+
+        return () => clearTimeout(timer);
     }, [image]);
 
     if (!image || !image.src) {
-        return null; // Handle missing image data
+        return null;
     }
 
-    const formattedConfidence = ((image.confidence || 0) * 100).toFixed(2) + "%";
+    const formattedConfidence = (progress).toFixed(2) + "%";
+
+    const getProgressBarColor = (title) => {
+        if (!title) return 'primary';
+        return title.toLowerCase().includes('infected') ? 'error' : 'success';
+    };
 
     return (
         <Card
-            sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: "opacity 500ms ease-in-out" }}
+            sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: "opacity 500ms ease-in-out", cursor: 'pointer' }}
+            onClick={() => onClick(image)}
         >
             <CardMedia
                 sx={{ maxHeight: "500px", objectFit: "cover" }}
@@ -26,17 +38,30 @@ const SingleImage = ({ image }) => {
                 <Typography gutterBottom variant="h5" component="h2">
                     {image.title}
                 </Typography>
-                <div style={{ display: "flex" }}>
-                    <Typography noWrap>
+
+                <Box sx={{ width: '100%', mt: 1 }}>
+                    <Typography variant="body2" color="textSecondary">
                         Confidence:
                     </Typography>
-                    <Typography noWrap color={image.confidence >= 0.5 ? "success.main" : "error.main"}>
-                        {" " + formattedConfidence}
-                    </Typography>
-                </div>
+                    <Tooltip
+                        title={<Typography sx={{ fontSize: '1.25rem' }}>{formattedConfidence}</Typography>}
+                        arrow
+                    >
+                        <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{
+                                height: 10,
+                                borderRadius: 5,
+                                transition: 'width 1s ease, background-color 1s ease',
+                            }}
+                            color={getProgressBarColor(image.title)}
+                        />
+                    </Tooltip>
+                </Box>
             </CardContent>
         </Card>
     );
-}
+};
 
 export default SingleImage;
