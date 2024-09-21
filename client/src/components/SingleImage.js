@@ -40,7 +40,7 @@ const SingleImage = ({ image, onClick }) => {
                 </Typography>
 
                 <Box sx={{ width: '100%', mt: 1 }}>
-                    <Typography variant="body2" color="textSecondary">
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1.1rem' }}>
                         Confidence:
                     </Typography>
                     <Tooltip

@@ -69,11 +69,18 @@ class PredictionService:
         finally:
             db_session.close()
 
-    def get_user_predictions(self, user_id):
+    def get_user_predictions_paginated(self, user_id, limit, offset):
         db_session = self.db.session
         try:
-            query = text('SELECT * FROM predictions WHERE user_id = :user_id')
-            result = db_session.execute(query, {'user_id': user_id})
+            # Get the total number of predictions for the user
+            total_query = text('SELECT COUNT(*) FROM predictions WHERE user_id = :user_id')
+            total_result = db_session.execute(total_query, {'user_id': user_id})
+            total_count = total_result.scalar()
+
+            # Fetch the paginated predictions in reverse order by id (latest first)
+            query = text(
+                'SELECT * FROM predictions WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit OFFSET :offset')
+            result = db_session.execute(query, {'user_id': user_id, 'limit': limit, 'offset': offset})
 
             predictions = []
             for row in result.fetchall():
@@ -83,10 +90,13 @@ class PredictionService:
                     'image_src': row[2],
                     'title': row[3],
                     'confidence': str(row[4]),
-                    'created_at': row[5].isoformat()
+                    'created_at': row[5].isoformat() if row[5] else None
                 })
-            return predictions
+
+            return predictions, total_count  # Return both predictions and total count
         finally:
             db_session.close()
+
+
 
 

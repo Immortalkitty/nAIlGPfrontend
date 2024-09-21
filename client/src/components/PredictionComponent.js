@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, CircularProgress, Container, Paper, Typography, Button, Stack } from '@mui/material';
 import ResultsGallery from './ResultsGallery';
 import SingleImage from './SingleImage';
 import { CSSTransition } from 'react-transition-group';
+import ZoomPictureModal from './ZoomPictureModal'; // Import the renamed ZoomPictureModal component
 
 const PredictionComponent = ({ image, results, error, isImageBeingProcessed, handleUploadNextClick, fileInputRef }) => {
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+    };
+
+    const handleClose = () => {
+        setSelectedImage(null);
+    };
+
     return (
         <Container disableGutters sx={{ flex: "1", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm">
                 <Box sx={{ minHeight: "300px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {isImageBeingProcessed && !image && <CircularProgress />} {/* Show spinner if processing */}
+                    {isImageBeingProcessed && !image && <CircularProgress />}
                     {image && (
                         <CSSTransition
                             in={!!image}
@@ -21,7 +32,7 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
                             }}
                         >
                             <div>
-                                <SingleImage image={image} />
+                                <SingleImage image={image} onClick={handleImageClick} />
                             </div>
                         </CSSTransition>
                     )}
@@ -29,12 +40,7 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
                 {error && <Typography color="error" align="center">{error}</Typography>}
             </Container>
 
-            {/* "Upload Next Image" Button */}
-            <Stack
-                sx={{ pt: 4, alignItems: 'center' }}
-                direction="row"
-                justifyContent="center"
-            >
+            <Stack sx={{ pt: 4, alignItems: 'center' }} direction="row" justifyContent="center">
                 <input
                     accept="image/*"
                     style={{ display: 'none' }}
@@ -48,15 +54,19 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
                 </Button>
             </Stack>
 
-            {/* Results Gallery */}
             {!!results.length && (
                 <Container sx={{ py: 8 }}>
-                    <Typography sx={{ p: 8 }} align="center" variant="h4" component="h3">Recent results:</Typography>
+                    <Typography sx={{ p: 8 }} align="center" variant="h4" component="h3">
+                        Recent results:
+                    </Typography>
                     <Paper elevation={3} sx={{ p: 4, background: '#0CC0DF' }}>
                         <ResultsGallery results={results} />
                     </Paper>
                 </Container>
             )}
+
+            {/* Use ZoomPictureModal instead of ImageModal */}
+            <ZoomPictureModal selectedImage={selectedImage} handleClose={handleClose} />
         </Container>
     );
 };

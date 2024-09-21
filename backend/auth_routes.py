@@ -2,7 +2,6 @@ from flask import Blueprint, request, session, jsonify, current_app
 
 auth_blueprint = Blueprint('auth', __name__)
 
-
 @auth_blueprint.route('/check-session', methods=['GET'])
 def check_session():
     logged_in = 'user_id' in session
@@ -24,13 +23,16 @@ def register():
         email = request.json.get('email')
         password = request.json.get('password')
 
+        # Register the user and handle different possible errors
         result = auth_service.register_user(email, password)
         session['user_id'] = result['user_id']
         return jsonify({'message': 'User registered', 'user_id': result['user_id']}), 201
+    except ValueError as ve:
+        # Handle specific validation errors
+        return jsonify({'error': str(ve)}), 400
     except Exception as e:
         print(f"Error registering user: {e}")
-        return jsonify({'error': 'Error registering user'}), 400
-
+        return jsonify({'error': 'An unexpected error occurred during registration'}), 500
 
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
@@ -49,8 +51,7 @@ def login():
         return jsonify({'message': 'User logged in'}), 200
     except Exception as e:
         print(f"Error logging in: {e}")
-        return jsonify({'error': 'Error logging in'}), 400
-
+        return jsonify({'error': 'An unexpected error occurred during login'}), 500
 
 @auth_blueprint.route('/logout', methods=['GET'])
 def logout():

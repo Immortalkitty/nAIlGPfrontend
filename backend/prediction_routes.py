@@ -59,9 +59,24 @@ def user_predictions():
         if 'user_id' not in session:
             raise Unauthorized('Unauthorized')
 
+        page = int(request.args.get('page', 1))  # Get page number, default to 1
+        limit = int(request.args.get('limit', 10))  # Get limit of items per page, default to 10
+        offset = (page - 1) * limit  # Calculate offset for the SQL query
+
         try:
-            predictions = current_app.prediction_service.get_user_predictions(session['user_id'])
-            return jsonify(predictions), 200
+            # Fetch predictions with pagination (latest first by id)
+            predictions, total_count = current_app.prediction_service.get_user_predictions_paginated(
+                session['user_id'], limit, offset
+            )
+
+            has_more = offset + limit < total_count  # Check if there are more results to load
+
+            # Return predictions and pagination data
+            return jsonify({
+                'predictions': predictions,  # List of predictions
+                'has_more': has_more,        # Whether more predictions are available
+                'total_count': total_count   # Total number of predictions (for reference)
+            }), 200
         except Exception as e:
             print(f"Error fetching predictions: {e}")
             return jsonify({'error': 'Error fetching predictions'}), 400

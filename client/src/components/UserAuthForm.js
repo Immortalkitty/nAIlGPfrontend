@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 const UserAuthForm = ({
@@ -9,14 +9,15 @@ const UserAuthForm = ({
     setPassword,
     handleSubmit,
     error,
-    buttonLabel
+    buttonLabel,
+    setFocus // New prop to set the focus on active form
 }) => {
+
     return (
         <Box sx={{ flex: 1, marginX: 2 }}>
             <Typography variant="h6" align="center" gutterBottom>
                 {title}
             </Typography>
-            {error && <Typography color="error">{error}</Typography>}
             <TextField
                 fullWidth
                 label="E-mail"
@@ -24,6 +25,7 @@ const UserAuthForm = ({
                 margin="normal"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocus()}
             />
             <TextField
                 fullWidth
@@ -33,6 +35,7 @@ const UserAuthForm = ({
                 margin="normal"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocus()}
             />
             <Button
                 fullWidth
@@ -42,6 +45,11 @@ const UserAuthForm = ({
             >
                 {buttonLabel}
             </Button>
+            {error && (
+                <Typography color="error" align="center" sx={{ mt: 2 , fontSize: '1.2rem', marginTop:'36px'}}>
+                    {error}
+                </Typography>
+            )}
         </Box>
     );
 };
