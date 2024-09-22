@@ -17,6 +17,9 @@ const ResultsGallery = ({ results }) => {
         setWillChangeImage(null);  // Remove will-change after the action is completed
     };
 
+    // Determine if the selected image has a valid src
+    const isImageValid = selectedImage && selectedImage.src;
+
     return (
         <>
             <Grid container spacing={4}>
@@ -41,7 +44,11 @@ const ResultsGallery = ({ results }) => {
             </Grid>
 
             {selectedImage && (
-                <ZoomPictureModal selectedImage={selectedImage} handleClose={handleClose} />
+                <ZoomPictureModal
+                    selectedImage={selectedImage}
+                    handleClose={handleClose}
+                    isImageValid={isImageValid} // Pass image validity status to the modal
+                />
             )}
         </>
     );

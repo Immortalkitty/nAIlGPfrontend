@@ -1,13 +1,22 @@
-import { Box, Typography, Modal } from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Typography, Modal, LinearProgress, Tooltip } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 
-const ZoomPictureModal = ({ selectedImage, handleClose }) => {
+const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
     const [imageError, setImageError] = useState(false);
 
-    // Function to handle image load error
+    // Handle image load error
     const handleImageError = () => {
         setImageError(true);
     };
+
+    // Function to determine the color of the progress bar based on the image title
+    const getProgressBarColor = (title) => {
+        if (!title) return 'primary';
+        return title.toLowerCase().includes('infected') ? 'error' : 'success';
+    };
+
+    // Predefine modal size based on image validity
+    const modalSize = isImageValid && !imageError ? { width: '80vw', height: '80vh' } : { width: '30vw', height: 'auto' };
 
     return (
         <Modal
@@ -29,10 +38,9 @@ const ZoomPictureModal = ({ selectedImage, handleClose }) => {
                     alignItems: 'center',
                     bgcolor: 'background.paper',
                     boxShadow: 24,
-                    width: imageError ? '30vw' : '80vw',
-                    height: imageError ? 'auto' : '80vh', // Set to auto when the image fails to load
                     p: 2,
                     borderRadius: 2,
+                    ...modalSize,  // Use predefined size based on image validity
                 }}
             >
                 {selectedImage && (
@@ -41,7 +49,7 @@ const ZoomPictureModal = ({ selectedImage, handleClose }) => {
                             {selectedImage.title || 'Image Preview'}
                         </Typography>
 
-                        {!imageError ? (
+                        {isImageValid && !imageError ? (
                             <Box
                                 sx={{
                                     display: 'flex',
@@ -64,7 +72,7 @@ const ZoomPictureModal = ({ selectedImage, handleClose }) => {
                                     }}
                                     src={selectedImage.src}
                                     alt={selectedImage.title || 'Image preview not available'}
-                                    onError={handleImageError} // Add error handler
+                                    onError={handleImageError}
                                 />
                             </Box>
                         ) : (
@@ -72,6 +80,30 @@ const ZoomPictureModal = ({ selectedImage, handleClose }) => {
                                 Image not available
                             </Typography>
                         )}
+
+                        {/* Confidence Bar (always visible) */}
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 2 }}>
+                            <Box sx={{ width: '60%' }}>
+                                <Typography variant="body4" color="textSecondary" sx={{ fontSize: '1.25rem' }}>
+                                    Confidence:
+                                </Typography>
+                                <Tooltip
+                                    title={<Typography sx={{ fontSize: '1.25rem' }}>{((selectedImage.confidence || 0) * 100).toFixed(2)}%</Typography>}
+                                    arrow
+                                >
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={(selectedImage.confidence || 0) * 100}
+                                        sx={{
+                                            height: 10,
+                                            borderRadius: 5,
+                                            transition: 'width 1s ease, background-color 1s ease',
+                                        }}
+                                        color={getProgressBarColor(selectedImage.title)}
+                                    />
+                                </Tooltip>
+                            </Box>
+                        </Box>
                     </>
                 )}
             </Box>
