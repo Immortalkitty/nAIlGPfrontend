@@ -28,32 +28,34 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
 
     // Handle form submission
     const handleAuthSubmit = async () => {
-        if (authMode === 'register') {
-            // Only apply validation in register mode
-            if (!email || !validateEmail(email)) {
-                setError('Please enter a valid email address.');
-                return;
-            }
+    // Common validation for both login and registration
+    if (!email || !validateEmail(email)) {
+        setError('Please enter a valid email address.');
+        return;
+    }
 
+    if (!password || !validatePassword(password)) {
+        setError('Password must be at least 8 characters long, include a number, and a special character.');
+        return;
+    }
 
-            if (!password || !validatePassword(password)) {
-                setError('Password must be at least 8 characters long, include a number, and a special character.');
-                return;
-            }
-            if (password !== confirmPassword) {
-                setError('Passwords do not match.');
-                return;
-            }
+    // Specific validation for registration mode
+    if (authMode === 'register') {
+        if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
         }
+    }
 
-        setError('');  // Clear any previous error if validation passes
+    setError('');  // Clear any previous error if validation passes
 
-        if (authMode === 'register') {
-            await handleRegister();
-        } else {
-            await handleLogin();
-        }
-    };
+    if (authMode === 'register') {
+        await handleRegister();
+    } else {
+        await handleLogin();
+    }
+};
+
 
     // Register user
     const handleRegister = async () => {
@@ -86,18 +88,19 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
     };
 
     // Add event listener to handle the "Enter" key press
-    useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.key === 'Enter') {
-                handleAuthSubmit();  // Call the submit function when "Enter" is pressed
-            }
-        };
+useEffect(() => {
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent the default Enter key behavior
+            handleAuthSubmit();  // Call the submit function when "Enter" is pressed
+        }
+    };
 
-        window.addEventListener('keydown', handleKeyPress);
-        return () => {
-            window.removeEventListener('keydown', handleKeyPress);
-        };
-    }, [email, password]);  // Depend on email and password so the latest values are used
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+        window.removeEventListener('keydown', handleKeyPress);
+    };
+}, [email, password, confirmPassword]); // Depend on email and password so the latest values are used
 
     return (
         <AnimatePresence mode="wait">
