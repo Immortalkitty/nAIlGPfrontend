@@ -50,6 +50,17 @@ const UserAuthForm = ({
         };
     }, [authMode]); // Depend on authMode to handle focus between login and register modes
 
+    // Function to set caret position at the end of the text in the input field
+    const setCaretPositionAtEnd = (ref) => {
+        if (ref.current) {
+            const length = ref.current.value.length;
+            // Delay execution to ensure focus is fully applied
+            setTimeout(() => {
+                ref.current.setSelectionRange(length, length); // Set caret at the end of text
+            }, 0);
+        }
+    };
+
     const errorVariants = {
         hidden: { opacity: 0, x: -50 },
         visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
@@ -68,6 +79,7 @@ const UserAuthForm = ({
                     setEmail(e.target.value);
                     setError(''); // Clear error when email changes
                 }}
+                onFocus={() => setCaretPositionAtEnd(emailRef)} // Set caret at the end on focus
                 inputRef={emailRef}
             />
             <TextField
@@ -81,6 +93,7 @@ const UserAuthForm = ({
                     setPassword(e.target.value);
                     setError(''); // Clear error when password changes
                 }}
+                onFocus={() => setCaretPositionAtEnd(passwordRef)} // Set caret at the end on focus
                 inputRef={passwordRef}
             />
 
@@ -104,6 +117,7 @@ const UserAuthForm = ({
                                 setConfirmPassword(e.target.value);
                                 setError(''); // Clear error when confirm password changes
                             }}
+                            onFocus={() => setCaretPositionAtEnd(confirmPasswordRef)} // Set caret at the end on focus
                             inputRef={confirmPasswordRef}
                         />
                     </motion.div>
