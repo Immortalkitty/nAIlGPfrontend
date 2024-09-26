@@ -28,34 +28,37 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
 
     // Handle form submission
     const handleAuthSubmit = async () => {
-    // Common validation for both login and registration
-    if (!email || !validateEmail(email)) {
-        setError('Please enter a valid email address.');
-        return;
-    }
-
-    if (!password || !validatePassword(password)) {
-        setError('Password must be at least 8 characters long, include a number, and a special character.');
-        return;
-    }
-
-    // Specific validation for registration mode
-    if (authMode === 'register') {
-        if (password !== confirmPassword) {
-            setError('Passwords do not match.');
+        // Common validation for both login and registration
+        if (!email || !validateEmail(email)) {
+            setError('Please enter a valid email address.');
             return;
         }
-    }
 
-    setError('');  // Clear any previous error if validation passes
+        if (authMode === 'register') {
+            // Registration-specific validations
+            if (!password || !validatePassword(password)) {
+                setError('Password must be at least 8 characters long, include a number, and a special character.');
+                return;
+            }
 
-    if (authMode === 'register') {
-        await handleRegister();
-    } else {
-        await handleLogin();
-    }
-};
+            if (password !== confirmPassword) {
+                setError('Passwords do not match.');
+                return;
+            }
 
+            // Registration logic
+            await handleRegister();
+        } else {
+            // Login-specific validations
+            if (!password) {
+                setError('Please enter a password.');
+                return;
+            }
+
+            // Login logic
+            await handleLogin();
+        }
+    };
 
     // Register user
     const handleRegister = async () => {
@@ -75,7 +78,12 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
             const usernameResponse = await axios.get('http://localhost:5000/auth/get-username', {withCredentials: true});
             setUsername(usernameResponse.data.username);
         } catch (error) {
-            setError(error.response?.data?.error || 'Login failed');
+            // If error is related to incorrect password, set the specific message
+            if (error.response?.status === 401) {
+                setError('Password is incorrect');
+            } else {
+                setError(error.response?.data?.error || 'Login failed');
+            }
         }
     };
 
@@ -83,24 +91,29 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
     const handleModeChange = (event, newMode) => {
         if (newMode !== null) {
             setAuthMode(newMode);
+            setError('');  // Clear any previous errors when switching modes
+
+            // Clear confirmPassword field when switching to login mode
+            if (newMode === 'login') {
+                setConfirmPassword(''); // Clear confirmPassword when switching to login mode
+            }
         }
-        setError('');  // Clear error when switching modes
     };
 
     // Add event listener to handle the "Enter" key press
-useEffect(() => {
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent the default Enter key behavior
-            handleAuthSubmit();  // Call the submit function when "Enter" is pressed
-        }
-    };
+    useEffect(() => {
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent the default Enter key behavior
+                handleAuthSubmit();  // Call the submit function when "Enter" is pressed
+            }
+        };
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => {
-        window.removeEventListener('keydown', handleKeyPress);
-    };
-}, [email, password, confirmPassword]); // Depend on email and password so the latest values are used
+        window.addEventListener('keydown', handleKeyPress);
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, [email, password, confirmPassword]); // Depend on email, password, and confirmPassword so the latest values are used
 
     return (
         <AnimatePresence mode="wait">
@@ -117,7 +130,6 @@ useEffect(() => {
             >
                 <Container maxWidth="sm">
                     <Box sx={{padding: 2, borderRadius: 2, textAlign: 'center', position: 'relative'}}>
-
 
                         <Box sx={{display: 'flex', justifyContent: 'center', mb: 3}}>
                             <ToggleButtonGroup
@@ -138,14 +150,15 @@ useEffect(() => {
                             password={password}
                             setEmail={setEmail}
                             setPassword={setPassword}
-                            confirmPassword={confirmPassword}  // Pass confirm password state
-                            setConfirmPassword={setConfirmPassword}  // Set confirm password
+                            confirmPassword={confirmPassword}
+                            setConfirmPassword={setConfirmPassword}
                             handleSubmit={handleAuthSubmit}
                             error={error}
                             buttonLabel="Submit"
                             emailRef={emailRef}
                             passwordRef={passwordRef}
-                            authMode={authMode}  // Pass authMode to conditionally render fields
+                            authMode={authMode}
+                            setError={setError}  // Pass setError to clear errors on input change
                         />
                     </Box>
                 </Container>

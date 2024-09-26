@@ -14,7 +14,8 @@ const UserAuthForm = ({
     passwordRef,
     confirmPassword,
     setConfirmPassword,
-    authMode, // Add authMode to conditionally render the confirmation field
+    authMode,
+    setError, // Pass setError to clear the error when text changes
 }) => {
     const confirmPasswordRef = useRef(null); // Ref for confirm password field
 
@@ -63,7 +64,10 @@ const UserAuthForm = ({
                 variant="outlined"
                 margin="normal"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(''); // Clear error when email changes
+                }}
                 inputRef={emailRef}
             />
             <TextField
@@ -73,7 +77,10 @@ const UserAuthForm = ({
                 variant="outlined"
                 margin="normal"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(''); // Clear error when password changes
+                }}
                 inputRef={passwordRef}
             />
 
@@ -93,7 +100,10 @@ const UserAuthForm = ({
                             variant="outlined"
                             margin="normal"
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                setError(''); // Clear error when confirm password changes
+                            }}
                             inputRef={confirmPasswordRef}
                         />
                     </motion.div>
