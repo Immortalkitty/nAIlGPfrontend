@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Fab } from '@mui/material';
+import { KeyboardArrowUp } from '@mui/icons-material';
 import axios from 'axios';
 import { useOutletContext } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -9,6 +10,7 @@ import Authentication from '../components/Authentication';
 const Profile = () => {
     const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext();  // Get context from BaseLayout
     const [loading, setLoading] = useState(true);  // Track loading state
+    const [showScroll, setShowScroll] = useState(false);  // Track if the button should be shown
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -31,6 +33,24 @@ const Profile = () => {
 
         checkLoginStatus();
     }, [setIsLoggedIn, setUsername]);
+
+    // Scroll event listener to show or hide the "Back to Top" button
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowScroll(true);
+            } else {
+                setShowScroll(false);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    // Function to scroll to the top of the page
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const fadeInUpVariants = {
         hidden: { opacity: 0, y: 20 },
@@ -67,6 +87,18 @@ const Profile = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Back to Top Button */}
+            {showScroll && (
+                <Fab
+                    color="primary"
+                    size="small"
+                    onClick={scrollToTop}
+                    sx={{ position: 'fixed', bottom: 16, right: 16 }}
+                >
+                    <KeyboardArrowUp />
+                </Fab>
+            )}
         </Box>
     );
 };
