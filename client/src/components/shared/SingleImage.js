@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 
 const SingleImage = ({ image, onClick }) => {
     const [progress, setProgress] = useState(0);
-    const [imageError, setImageError] = useState(false);  // State to track if image loading fails
+    const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -13,21 +13,17 @@ const SingleImage = ({ image, onClick }) => {
         return () => clearTimeout(timer);
     }, [image]);
 
-    if (!image) {
-        return null;
-    }
+    if (!image) return null;
 
-    const formattedConfidence = (progress).toFixed(2) + "%";
+    const formattedConfidence = `${progress.toFixed(2)}%`;
 
     const getProgressBarColor = (title) => {
-        if (!title) return 'primary';
-        return title.toLowerCase().includes('infected') ? 'error' : 'success';
+        return title?.toLowerCase().includes('infected') ? 'error' : 'success';
     };
 
-    // Handle image load error
     const handleImageError = () => {
         setImageError(true);
-        image.src = '';  // Clear the src prop to indicate the image is invalid
+        image.src = '';
     };
 
     return (
@@ -38,18 +34,17 @@ const SingleImage = ({ image, onClick }) => {
                 flexDirection: 'column',
                 transition: "opacity 500ms ease-in-out",
                 cursor: 'pointer',
-                width: '100%',  // Shrink when image is missing
-                minHeight: imageError ? '150px' : 'auto', // Compact size when no image
+                width: '100%',
+                minHeight: imageError ? '150px' : 'auto',
             }}
             onClick={() => onClick(image)}
         >
-            {/* Conditionally render the image or a fallback label */}
             {!imageError && image.src ? (
                 <Box
                     sx={{
                         position: 'relative',
                         width: '100%',
-                        aspectRatio: '3 / 3',  // Fixed aspect ratio for the image
+                        aspectRatio: '3 / 3',
                         overflow: 'hidden',
                     }}
                 >
@@ -63,9 +58,9 @@ const SingleImage = ({ image, onClick }) => {
                             left: 0,
                             width: '100%',
                             height: '100%',
-                            objectFit: 'cover' // Ensures the image covers the container
+                            objectFit: 'cover'
                         }}
-                        onError={handleImageError}  // Handle image load error
+                        onError={handleImageError}
                     />
                 </Box>
             ) : (
@@ -75,8 +70,8 @@ const SingleImage = ({ image, onClick }) => {
                         justifyContent: 'center',
                         alignItems: 'center',
                         width: '100%',
-                        padding: '10px',  // Padding when image is not present
-                        minHeight: '50px',  // Ensures some height even when no image
+                        padding: '10px',
+                        minHeight: '50px',
                     }}
                 >
                     <Typography variant="body2" color="textSecondary" align="center">
@@ -85,9 +80,8 @@ const SingleImage = ({ image, onClick }) => {
                 </Box>
             )}
 
-            {/* Card Content with confidence bar always visible */}
             <CardContent sx={{ flexGrow: 1, padding: '8px' }}>
-                <Typography gutterBottom variant="h5" component="h2" >
+                <Typography gutterBottom variant="h5" component="h2">
                     {image.title}
                 </Typography>
 

@@ -1,10 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Box, Container, ToggleButton, ToggleButtonGroup} from '@mui/material';
-import {AnimatePresence, motion} from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, Container, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { AnimatePresence, motion } from 'framer-motion';
 import axios from 'axios';
-import UserAuthForm from '../components/UserAuthForm';
+import UserAuthForm from './UserAuthForm';
+import config from "../../utils/config.js";
 
-const Authentication = ({setIsLoggedIn, setUsername}) => {
+const Authentication = ({ setIsLoggedIn, setUsername }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -14,28 +15,17 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
     const emailRef = useRef(null);
     const passwordRef = useRef(null);
 
-    // Regex for email validation
-    const validateEmail = (email) => {
-        const emailRegex = /^[a-zA-Z0-9_-]{3,20}$/;
-        return emailRegex.test(email);
-    };
+    const validateEmail = (email) => /^[a-zA-Z0-9_-]{3,20}$/.test(email);
 
-    // Password validation logic
-    const validatePassword = (password) => {
-        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-        return passwordRegex.test(password);
-    };
+    const validatePassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(password);
 
-    // Handle form submission
     const handleAuthSubmit = async () => {
-        // Common validation for both login and registration
         if (!email || !validateEmail(email)) {
             setError('Please enter a valid email address.');
             return;
         }
 
         if (authMode === 'register') {
-            // Registration-specific validations
             if (!password || !validatePassword(password)) {
                 setError('Password must be at least 8 characters long, include a number, and a special character.');
                 return;
@@ -46,74 +36,58 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
                 return;
             }
 
-            // Registration logic
             await handleRegister();
         } else {
-            // Login-specific validations
             if (!password) {
                 setError('Please enter a password.');
                 return;
             }
 
-            // Login logic
             await handleLogin();
         }
     };
 
-    // Register user
     const handleRegister = async () => {
         try {
-            await axios.post('http://localhost:5000/auth/register', {email, password}, {withCredentials: true});
-            await handleLogin();  // Automatically log in after registration
+            await axios.post(`${config.API_BASE_URL}/auth/register`, { email, password }, { withCredentials: true });
+            await handleLogin();
         } catch (error) {
             setError(error.response?.data?.error || 'Registration failed');
         }
     };
 
-    // Login user
     const handleLogin = async () => {
         try {
-            await axios.post('http://localhost:5000/auth/login', {email, password}, {withCredentials: true});
+            await axios.post(`${config.API_BASE_URL}/auth/login`, { email, password }, { withCredentials: true });
             setIsLoggedIn(true);
-            const usernameResponse = await axios.get('http://localhost:5000/auth/get-username', {withCredentials: true});
-            setUsername(usernameResponse.data.username);
+            const { data: { username } } = await axios.get(`${config.API_BASE_URL}/auth/get-username`, { withCredentials: true });
+            setUsername(username);
         } catch (error) {
-            // If error is related to incorrect password, set the specific message
-            if (error.response?.status === 401) {
-                setError('Password is incorrect');
-            } else {
-                setError(error.response?.data?.error || 'Login failed');
-            }
+            setError(error.response?.status === 401 ? 'Password is incorrect' : error.response?.data?.error || 'Login failed');
         }
     };
 
-    // Handle auth mode toggle
     const handleModeChange = (event, newMode) => {
-        if (newMode !== null) {
+        if (newMode) {
             setAuthMode(newMode);
-            setError('');  // Clear any previous errors when switching modes
-
-            // Clear confirmPassword field when switching to login mode
+            setError('');
             if (newMode === 'login') {
-                setConfirmPassword(''); // Clear confirmPassword when switching to login mode
+                setConfirmPassword('');
             }
         }
     };
 
-    // Add event listener to handle the "Enter" key press
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent the default Enter key behavior
-                handleAuthSubmit();  // Call the submit function when "Enter" is pressed
+                e.preventDefault();
+                handleAuthSubmit();
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
-        return () => {
-            window.removeEventListener('keydown', handleKeyPress);
-        };
-    }, [email, password, confirmPassword]); // Depend on email, password, and confirmPassword so the latest values are used
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [email, password, confirmPassword]);
 
     return (
         <AnimatePresence mode="wait">
@@ -123,28 +97,26 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
                 animate="visible"
                 exit="exit"
                 variants={{
-                    hidden: {opacity: 0, y: 20},
-                    visible: {opacity: 1, y: 0, transition: {duration: 0.5}},
-                    exit: {opacity: 0, y: -20, transition: {duration: 0.5}},
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+                    exit: { opacity: 0, y: -20, transition: { duration: 0.5 } },
                 }}
             >
                 <Container maxWidth="sm">
-                    <Box sx={{padding: 2, borderRadius: 2, textAlign: 'center', position: 'relative'}}>
-
-                        <Box sx={{display: 'flex', justifyContent: 'center', mb: 3}}>
+                    <Box sx={{ padding: 2, borderRadius: 2, textAlign: 'center', position: 'relative' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                             <ToggleButtonGroup
                                 color="primary"
                                 value={authMode}
                                 exclusive
                                 onChange={handleModeChange}
-                                sx={{width: '100%', maxWidth: 300}}
+                                sx={{ width: '100%', maxWidth: 300 }}
                             >
-                                <ToggleButton value="login" sx={{flex: 1}}>Login</ToggleButton>
-                                <ToggleButton value="register" sx={{flex: 1}}>Register</ToggleButton>
+                                <ToggleButton value="login" sx={{ flex: 1 }}>Login</ToggleButton>
+                                <ToggleButton value="register" sx={{ flex: 1 }}>Register</ToggleButton>
                             </ToggleButtonGroup>
                         </Box>
 
-                        {/* Form component */}
                         <UserAuthForm
                             email={email}
                             password={password}
@@ -158,7 +130,7 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
                             emailRef={emailRef}
                             passwordRef={passwordRef}
                             authMode={authMode}
-                            setError={setError}  // Pass setError to clear errors on input change
+                            setError={setError}
                         />
                     </Box>
                 </Container>

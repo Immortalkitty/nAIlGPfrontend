@@ -38,12 +38,12 @@ export const uploadAndPredictImage = async (file, setImage, setError, appendResu
                 console.warn('Prediction not saved: User not authenticated.');
                 setError('Result not saved. Log in to save your predictions.');
             } else {
-                console.error('Error saving prediction:', saveError);
-                setError('Error saving prediction.');
+                console.error('error saving prediction:', saveError);
+                setError('error saving prediction.');
             }
         }
     } catch (err) {
-        console.error('Error during prediction:', err);
+        console.error('error during prediction:', err);
         setError('Prediction failed. Please try again.');
     }
 };

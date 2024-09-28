@@ -1,31 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box, Button, Container, Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import HomeAppTitles from '../components/HomeAppTitles';
+import HomeAppTitles from '../components/homeScreen/HomeAppTitles';
 
 const homeVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5} }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
 const HomeScreen = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    console.log("HomeScreen rendered");
-  }, []);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log("File selected:", file);
       navigate('/prediction', { state: { file } });
     }
   };
 
   const handleClick = () => {
-    document.getElementById('upload-file').click();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   return (
@@ -48,8 +46,14 @@ const HomeScreen = () => {
               id="upload-file"
               type="file"
               onChange={handleFileChange}
+              ref={fileInputRef}
             />
-            <Button sx={{ background: '#0CC0DF' }} variant="contained" onClick={handleClick}>
+            <Button
+              sx={{ background: '#0CC0DF' }}
+              variant="contained"
+              onClick={handleClick}
+              aria-label="Upload and Analyze"
+            >
               Upload and Analyze
             </Button>
           </Stack>

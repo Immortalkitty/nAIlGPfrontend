@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Box, Container, Paper, Typography, Button, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import ResultsGallery from './ResultsGallery';
+import ResultsGallery from '../shared/ResultsGallery';
+import config from '../../utils/config';
 
 const UserHistory = ({ isLoggedIn, username }) => {
     const [results, setResults] = useState([]);
@@ -12,32 +13,35 @@ const UserHistory = ({ isLoggedIn, username }) => {
     const isFetching = useRef(false);
 
     useEffect(() => {
-        if (isLoggedIn && !isFetching.current) {
-            setResults([]);
-            setPage(1);
-            setHasMore(true);
-            fetchPredictions(1);
+        if (isLoggedIn) {
+            resetHistory();
         }
     }, [isLoggedIn]);
 
+    const resetHistory = () => {
+        setResults([]);
+        setPage(1);
+        setHasMore(true);
+        fetchPredictions(1);
+    };
+
     const fetchPredictions = async (pageNumber) => {
         if (isFetching.current || !hasMore) return;
-        isFetching.current = true;
 
+        isFetching.current = true;
         setLoading(true);
+
         try {
-            const response = await axios.get(`http://localhost:5000/predictions/user-predictions?page=${pageNumber}&limit=10`, { withCredentials: true });
-            const predictions = response.data.predictions.map(prediction => ({
-                src: prediction.image_src,
-                title: prediction.title,
-                confidence: prediction.confidence,
-                id: prediction.id
+            const { data } = await axios.get(`${config.API_BASE_URL}/predictions/user-predictions?page=${pageNumber}&limit=10`, { withCredentials: true });
+            const predictions = data.predictions.map(({ image_src, title, confidence, id }) => ({
+                src: image_src, title, confidence, id
             }));
-            setResults(prevResults => [...prevResults, ...predictions]);
-            setHasMore(response.data.has_more);
+
+            setResults((prevResults) => [...prevResults, ...predictions]);
+            setHasMore(data.has_more);
             setPage(pageNumber);
         } catch (error) {
-            console.error('Error fetching predictions:', error.response ? error.response.data : error.message);
+            console.error('Error fetching predictions:', error.response?.data || error.message);
         } finally {
             setLoading(false);
             isFetching.current = false;

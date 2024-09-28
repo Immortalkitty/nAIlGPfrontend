@@ -4,50 +4,45 @@ import { KeyboardArrowUp } from '@mui/icons-material';
 import axios from 'axios';
 import { useOutletContext } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import UserHistory from '../components/UserHistory';
-import Authentication from '../components/Authentication';
+import UserHistory from '../components/profile/UserHistory';
+import Authentication from '../components/profile/Authentication';
+import config from '../utils/config';  // Import config for API base path
 
 const Profile = () => {
-    const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext();  // Get context from BaseLayout
-    const [loading, setLoading] = useState(true);  // Track loading state
-    const [showScroll, setShowScroll] = useState(false);  // Track if the button should be shown
+    const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext();
+    const [loading, setLoading] = useState(true);
+    const [showScroll, setShowScroll] = useState(false);
 
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/auth/check-session', { withCredentials: true });
+                const response = await axios.get(`${config.API_BASE_URL}/auth/check-session`, { withCredentials: true });
                 if (response.data.loggedIn) {
                     setIsLoggedIn(true);
-                    const usernameResponse = await axios.get('http://localhost:5000/auth/get-username', { withCredentials: true });
+                    const usernameResponse = await axios.get(`${config.API_BASE_URL}/auth/get-username`, { withCredentials: true });
                     setUsername(usernameResponse.data.username);
                 } else {
                     setIsLoggedIn(false);
                 }
             } catch (error) {
-                console.error('Error checking session:', error);
+                console.error('error checking session:', error);
                 setIsLoggedIn(false);
             } finally {
-                setLoading(false);  // Set loading to false when done
+                setLoading(false);
             }
         };
 
         checkLoginStatus();
     }, [setIsLoggedIn, setUsername]);
 
-    // Scroll event listener to show or hide the "Back to Top" button
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 300) {
-                setShowScroll(true);
-            } else {
-                setShowScroll(false);
-            }
+            setShowScroll(window.scrollY > 300);
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Function to scroll to the top of the page
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -59,7 +54,7 @@ const Profile = () => {
     };
 
     if (loading) {
-        return <CircularProgress />;  // Show a loading indicator while checking session status
+        return <CircularProgress />;
     }
 
     return (
@@ -88,7 +83,6 @@ const Profile = () => {
                 )}
             </AnimatePresence>
 
-            {/* Back to Top Button */}
             {showScroll && (
                 <Fab
                     color="primary"

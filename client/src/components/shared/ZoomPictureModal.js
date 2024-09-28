@@ -1,34 +1,26 @@
 import { Box, Typography, Modal, LinearProgress, Tooltip } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion'; // Only import motion, not AnimatePresence
+import { motion } from 'framer-motion';
 
 const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
     const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
-        if (!selectedImage) {
-            setImageError(false); // Reset error if the selected image changes
+        if (selectedImage) {
+            setImageError(false);
         }
     }, [selectedImage]);
 
-    // Handle image load error
-    const handleImageError = () => {
-        setImageError(true);
-    };
+    const handleImageError = () => setImageError(true);
 
-    // Function to determine the color of the progress bar based on the image title
-    const getProgressBarColor = (title) => {
-        if (!title) return 'primary';
-        return title.toLowerCase().includes('infected') ? 'error' : 'success';
-    };
+    const getProgressBarColor = (title) => title?.toLowerCase().includes('infected') ? 'error' : 'success';
 
-    // Predefine modal size based on image validity
     const modalSize = isImageValid && !imageError ? { width: '80vw', height: '80vh' } : { width: '30vw', height: 'auto' };
 
     return (
         <Modal
-            open={!!selectedImage} // Control modal visibility based on selectedImage
-            onClose={handleClose}   // Simple close without animation
+            open={!!selectedImage}
+            onClose={handleClose}
             aria-labelledby="modal-title"
             aria-describedby="modal-description"
             keepMounted
@@ -40,9 +32,9 @@ const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
         >
             {selectedImage && (
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }} // Entrance animation
-                    animate={{ opacity: 1, scale: 1 }}   // End state when fully open
-                    transition={{ duration: 0.2, ease: 'easeInOut' }} // Smooth transition duration
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.2, ease: 'easeInOut' }}
                 >
                     <Box
                         sx={{
@@ -54,10 +46,10 @@ const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
                             boxShadow: 24,
                             p: 2,
                             borderRadius: 2,
-                            ...modalSize,  // Use predefined size based on image validity
+                            ...modalSize,
                         }}
                     >
-                        <Typography id="modal-title" variant="h4" component="h2" align="center" gutterBottom>
+                        <Typography id="modal-title" variant="h4" align="center" gutterBottom>
                             {selectedImage.title || 'Image Preview'}
                         </Typography>
 
@@ -67,23 +59,21 @@ const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    flexGrow: 1,
                                     width: '100%',
                                     height: '100%',
-                                    maxWidth: '100%',
                                     maxHeight: '65vh',
                                 }}
                             >
                                 <Box
                                     component="img"
+                                    src={selectedImage.src}
+                                    alt={selectedImage.title || 'Image preview not available'}
                                     sx={{
                                         width: 'auto',
                                         height: '100%',
                                         maxWidth: '100%',
                                         objectFit: 'contain',
                                     }}
-                                    src={selectedImage.src}
-                                    alt={selectedImage.title || 'Image preview not available'}
                                     onError={handleImageError}
                                 />
                             </Box>
@@ -93,7 +83,6 @@ const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
                             </Typography>
                         )}
 
-                        {/* Confidence Bar (always visible) */}
                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 2 }}>
                             <Box sx={{ width: '60%' }}>
                                 <Typography variant="body4" color="textSecondary" sx={{ fontSize: '1.25rem' }}>

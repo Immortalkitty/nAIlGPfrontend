@@ -10,27 +10,42 @@ import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import HomeIcon from "@mui/icons-material/Home";
 import AppBar from "@mui/material/AppBar";
 import axios from "axios";
-import { useTheme } from "@mui/material/styles";  // Import useTheme hook
+import { useTheme } from "@mui/material/styles";
+import config from "../../utils/config.js";
 
 const menuVariants = {
   hidden: { opacity: 0, y: -20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "anticipate" } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "anticipate" } },
 };
 
 const handleLogoutClick = async (setIsLoggedIn) => {
   try {
-    await axios.get('http://localhost:5000/auth/logout', { withCredentials: true });
+    await axios.get(`${config.API_BASE_URL}/auth/logout`, { withCredentials: true });
     setIsLoggedIn(false);
   } catch (error) {
     console.error('Error logging out:', error);
   }
 };
 
+const MenuIconButton = ({ to, label, IconComponent, activeStyle }) => (
+  <IconButton
+    edge="end"
+    color="inherit"
+    aria-label={label}
+    component={NavLink}
+    to={to}
+    style={({ isActive }) => (isActive ? activeStyle : undefined)}
+  >
+    <IconComponent sx={{ mr: 2 }} />
+  </IconButton>
+);
+
 function MenuBar({ isLoggedIn, setIsLoggedIn, onHelpClick, username }) {
   const theme = useTheme();
+  const { primary } = theme.palette;
 
   const activeStyle = {
-    color: theme.palette.primary.main,
+    color: primary.main,
   };
 
   return (
@@ -45,41 +60,40 @@ function MenuBar({ isLoggedIn, setIsLoggedIn, onHelpClick, username }) {
           <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
             nAIlGP
           </Typography>
+
           {isLoggedIn && (
             <>
               <Typography variant="body1" color="inherit" sx={{ mr: 2 }}>
                 {username}
               </Typography>
-              <IconButton edge="end" color="inherit" aria-label="logout" onClick={() => handleLogoutClick(setIsLoggedIn)}>
+              <IconButton
+                edge="end"
+                color="inherit"
+                aria-label="logout"
+                onClick={() => handleLogoutClick(setIsLoggedIn)}
+              >
                 <ExitToAppIcon sx={{ mr: 2 }} />
               </IconButton>
             </>
           )}
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="account"
-            component={NavLink}
-            to="/profile"
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          >
-            <AccountCircleIcon sx={{ mr: 2 }} />
-          </IconButton>
 
-          {/* Help button */}
+          <MenuIconButton
+            to="/profile"
+            label="account"
+            IconComponent={AccountCircleIcon}
+            activeStyle={activeStyle}
+          />
+
           <IconButton edge="end" color="inherit" aria-label="help" onClick={onHelpClick}>
             <HelpOutlineIcon sx={{ mr: 2 }} />
           </IconButton>
-          <IconButton
-            edge="end"
-            color="inherit"
-            aria-label="home"
-            component={NavLink}
+
+          <MenuIconButton
             to="/"
-            style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          >
-            <HomeIcon sx={{ mr: 2 }} />
-          </IconButton>
+            label="home"
+            IconComponent={HomeIcon}
+            activeStyle={activeStyle}
+          />
         </Toolbar>
       </AppBar>
     </motion.div>

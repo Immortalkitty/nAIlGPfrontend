@@ -27,22 +27,16 @@ function ErrorPageContent({ title, message }) {
                 {title}
             </Typography>
 
-            <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={fadeInUpVariants}
+            <Typography
+                component="h4"
+                variant="h4"
+                align="center"
+                color="text.secondary"
+                paragraph
+                sx={{ mt: 2 }}
             >
-                <Typography
-                    component="h4"
-                    variant="h4"
-                    align="center"
-                    color="text.secondary"
-                    paragraph
-                >
-                    {message}
-                </Typography>
-            </motion.div>
+                {message}
+            </Typography>
         </motion.div>
     );
 }

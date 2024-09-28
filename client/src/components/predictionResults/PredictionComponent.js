@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Box, CircularProgress, Container, Typography, Button, Stack, Paper } from '@mui/material';
-import ResultsGallery from './ResultsGallery';
-import SingleImage from './SingleImage';
+import ResultsGallery from '../shared/ResultsGallery';
+import SingleImage from '../shared/SingleImage';
 import { CSSTransition } from 'react-transition-group';
-import ZoomPictureModal from './ZoomPictureModal';
+import ZoomPictureModal from '../shared/ZoomPictureModal';
 
 const PredictionComponent = ({ image, results, error, isImageBeingProcessed, handleUploadNextClick, fileInputRef }) => {
     const [selectedImage, setSelectedImage] = useState(null);
 
-    // Determine if the selected image has a valid src
-    const isImageValid = selectedImage && selectedImage.src;
-
     const handleImageClick = (image) => {
         if (image && image.src) {
-            setSelectedImage(image); // Only set selectedImage if it has a valid src
+            setSelectedImage(image);
         } else {
             console.error("Image not found or invalid");
         }
@@ -23,15 +20,17 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
         setSelectedImage(null);
     };
 
+    const isImageValid = selectedImage && selectedImage.src;
+
     return (
         <Container disableGutters sx={{ flex: "1", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <Container sx={{ pt: 8, pb: 6 }} maxWidth="sm">
                 <Box sx={{
-                    minHeight: "350px",  // Increased minHeight for bigger image
+                    minHeight: "350px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    maxWidth: "100%",  // Allow image to take full width
+                    maxWidth: "100%",
                 }}>
                     {isImageBeingProcessed && !image && <CircularProgress />}
                     {image && (
@@ -46,10 +45,9 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
                         >
                             <Box sx={{
                                 width: '100%',
-                                maxWidth: '450px',  // Increased max width for larger image
+                                maxWidth: '450px',
                                 margin: '0 auto',
                             }}>
-                                {/* Ensure image is valid before passing to SingleImage */}
                                 {image.src ? (
                                     <SingleImage image={image} onClick={handleImageClick} />
                                 ) : (
@@ -87,7 +85,6 @@ const PredictionComponent = ({ image, results, error, isImageBeingProcessed, han
                 </Container>
             )}
 
-            {/* Pass isImageValid prop to ZoomPictureModal */}
             {selectedImage && (
                 <ZoomPictureModal selectedImage={selectedImage} handleClose={handleClose} isImageValid={isImageValid} />
             )}
