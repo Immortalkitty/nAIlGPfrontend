@@ -3,14 +3,14 @@ import { Box, TextField, Button, Typography } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const UserAuthForm = ({
-    email,
+    nick,
     password,
-    setEmail,
+    setNick,
     setPassword,
     handleSubmit,
     error,
     buttonLabel,
-    emailRef,
+    nickRef,
     passwordRef,
     confirmPassword,
     setConfirmPassword,
@@ -28,7 +28,7 @@ const UserAuthForm = ({
     useEffect(() => {
         const handleKeyPress = (e) => {
             if (e.key === 'ArrowDown') {
-                if (document.activeElement === emailRef.current) {
+                if (document.activeElement === nickRef.current) {
                     passwordRef.current?.focus();
                 } else if (authMode === 'register' && document.activeElement === passwordRef.current) {
                     confirmPasswordRef.current?.focus();
@@ -37,7 +37,7 @@ const UserAuthForm = ({
                 if (authMode === 'register' && document.activeElement === confirmPasswordRef.current) {
                     passwordRef.current?.focus();
                 } else if (document.activeElement === passwordRef.current) {
-                    emailRef.current?.focus();
+                    nickRef.current?.focus();
                 }
             }
         };
@@ -65,16 +65,16 @@ const UserAuthForm = ({
         <Box sx={{ flex: 1, marginX: 2 }}>
             <TextField
                 fullWidth
-                label="E-mail"
+                label="Username"
                 variant="outlined"
                 margin="normal"
-                value={email}
+                value={nick}
                 onChange={(e) => {
-                    setEmail(e.target.value);
+                    setNick(e.target.value);
                     setError('');
                 }}
-                onFocus={() => setCaretPositionAtEnd(emailRef)}
-                inputRef={emailRef}
+                onFocus={() => setCaretPositionAtEnd(nickRef)}
+                inputRef={nickRef}
             />
             <TextField
                 fullWidth

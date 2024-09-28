@@ -1,11 +1,8 @@
-from urllib.parse import unquote
-
 from flask import Blueprint, request, jsonify, session, current_app, send_from_directory, url_for
-from oauthlib.common import quote
 from werkzeug.exceptions import Unauthorized
 
-from file_service import FileService
 from config import Config
+from file_service import FileService
 
 prediction_blueprint = Blueprint('prediction', __name__)
 

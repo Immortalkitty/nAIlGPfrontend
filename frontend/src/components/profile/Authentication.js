@@ -6,22 +6,22 @@ import UserAuthForm from './UserAuthForm';
 import config from "../../utils/config.js";
 
 const Authentication = ({ setIsLoggedIn, setUsername }) => {
-    const [email, setEmail] = useState('');
+    const [nick, setNick] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [authMode, setAuthMode] = useState('login');
 
-    const emailRef = useRef(null);
+    const nickRef = useRef(null);
     const passwordRef = useRef(null);
 
-    const validateEmail = (email) => /^[a-zA-Z0-9_-]{3,20}$/.test(email);
+    const validateUsername = (username) => /^[a-zA-Z0-9_-]{3,20}$/.test(username);
 
-    const validatePassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(password);
+    const validatePassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/.test(password);
 
     const handleAuthSubmit = async () => {
-        if (!email || !validateEmail(email)) {
-            setError('Please enter a valid email address.');
+        if (!nick || !validateUsername(nick)) {
+            setError('Please enter a valid username. It must be between 3 and 20 characters long.');
             return;
         }
 
@@ -49,7 +49,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
 
     const handleRegister = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/auth/register`, { email, password }, { withCredentials: true });
+            await axios.post(`${config.API_BASE_URL}/auth/register`, { email: nick, password }, { withCredentials: true });
             await handleLogin();
         } catch (error) {
             setError(error.response?.data?.error || 'Registration failed');
@@ -58,7 +58,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
 
     const handleLogin = async () => {
         try {
-            await axios.post(`${config.API_BASE_URL}/auth/login`, { email, password }, { withCredentials: true });
+            await axios.post(`${config.API_BASE_URL}/auth/login`, { email: nick, password }, { withCredentials: true });
             setIsLoggedIn(true);
             const { data: { username } } = await axios.get(`${config.API_BASE_URL}/auth/get-username`, { withCredentials: true });
             setUsername(username);
@@ -87,7 +87,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [email, password, confirmPassword]);
+    }, [nick, password, confirmPassword]);
 
     return (
         <AnimatePresence mode="wait">
@@ -118,16 +118,16 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
                         </Box>
 
                         <UserAuthForm
-                            email={email}
+                            nick={nick}
                             password={password}
-                            setEmail={setEmail}
+                            setNick={setNick}
                             setPassword={setPassword}
                             confirmPassword={confirmPassword}
                             setConfirmPassword={setConfirmPassword}
                             handleSubmit={handleAuthSubmit}
                             error={error}
                             buttonLabel="Submit"
-                            emailRef={emailRef}
+                            nickRef={nickRef}
                             passwordRef={passwordRef}
                             authMode={authMode}
                             setError={setError}
