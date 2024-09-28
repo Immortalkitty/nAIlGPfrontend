@@ -14,9 +14,9 @@ CREATE TABLE predictions (
 );
 
 CREATE TABLE sessions (
-    sid VARCHAR NOT NULL COLLATE "default",
-    sess JSON NOT NULL,
-    expire TIMESTAMP(6) NOT NULL,
-    PRIMARY KEY (sid)
-)
-WITH (OIDS=FALSE);
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    data BYTEA NOT NULL,
+    expiry TIMESTAMP(6) NOT NULL
+);
+
