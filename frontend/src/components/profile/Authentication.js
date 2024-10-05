@@ -1,23 +1,23 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Container, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, {useEffect, useRef, useState} from 'react';
+import {Box, Container, ToggleButton, ToggleButtonGroup} from '@mui/material';
+import {AnimatePresence, motion} from 'framer-motion';
 import axios from 'axios';
 import UserAuthForm from './UserAuthForm';
 import config from "../../utils/config.js";
+import {encryptData} from '../../utils/encryptData';
 
-const Authentication = ({ setIsLoggedIn, setUsername }) => {
+const Authentication = ({setIsLoggedIn, setUsername}) => {
     const [nick, setNick] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [authMode, setAuthMode] = useState('login');
-    const [loading, setLoading] = useState(false); // Add loading state
+    const [loading, setLoading] = useState(false);
 
     const nickRef = useRef(null);
     const passwordRef = useRef(null);
 
     const validateUsername = (username) => /^[a-zA-Z0-9_-]{3,20}$/.test(username);
-
     const validatePassword = (password) => /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/.test(password);
 
     const handleAuthSubmit = async () => {
@@ -49,28 +49,40 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
     };
 
     const handleRegister = async () => {
-        setLoading(true); // Set loading to true when request starts
+        setLoading(true);
         try {
-            await axios.post(`${config.API_BASE_URL}/auth/register`, { email: nick, password }, { withCredentials: true });
+            const encryptedEmail = encryptData(nick);
+            const encryptedPassword = encryptData(password);
+
+            await axios.post(`${config.API_BASE_URL}/auth/register`, {
+                email: encryptedEmail,
+                password: encryptedPassword
+            }, {withCredentials: true});
             await handleLogin();
         } catch (error) {
             setError(error.response?.data?.error || 'Registration failed');
         } finally {
-            setLoading(false); // Set loading to false when request ends
+            setLoading(false);
         }
     };
 
     const handleLogin = async () => {
-        setLoading(true); // Set loading to true when request starts
+        setLoading(true);
         try {
-            await axios.post(`${config.API_BASE_URL}/auth/login`, { email: nick, password }, { withCredentials: true });
+            const encryptedEmail = encryptData(nick);
+            const encryptedPassword = encryptData(password);
+
+            await axios.post(`${config.API_BASE_URL}/auth/login`, {
+                email: encryptedEmail,
+                password: encryptedPassword
+            }, {withCredentials: true});
             setIsLoggedIn(true);
-            const { data: { username } } = await axios.get(`${config.API_BASE_URL}/auth/get-username`, { withCredentials: true });
+            const {data: {username}} = await axios.get(`${config.API_BASE_URL}/auth/get-username`, {withCredentials: true});
             setUsername(username);
         } catch (error) {
             setError(error.response?.status === 401 ? 'Password is incorrect' : error.response?.data?.error || 'Login failed');
         } finally {
-            setLoading(false); // Set loading to false when request ends
+            setLoading(false);
         }
     };
 
@@ -104,23 +116,23 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
                 animate="visible"
                 exit="exit"
                 variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-                    exit: { opacity: 0, y: -20, transition: { duration: 0.5 } },
+                    hidden: {opacity: 0, y: 20},
+                    visible: {opacity: 1, y: 0, transition: {duration: 0.5}},
+                    exit: {opacity: 0, y: -20, transition: {duration: 0.5}},
                 }}
             >
                 <Container maxWidth="sm">
-                    <Box sx={{ padding: 2, borderRadius: 2, textAlign: 'center', position: 'relative' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                    <Box sx={{padding: 2, borderRadius: 2, textAlign: 'center', position: 'relative'}}>
+                        <Box sx={{display: 'flex', justifyContent: 'center', mb: 3}}>
                             <ToggleButtonGroup
                                 color="primary"
                                 value={authMode}
                                 exclusive
                                 onChange={handleModeChange}
-                                sx={{ width: '100%', maxWidth: 300 }}
+                                sx={{width: '100%', maxWidth: 300}}
                             >
-                                <ToggleButton value="login" sx={{ flex: 1 }}>Login</ToggleButton>
-                                <ToggleButton value="register" sx={{ flex: 1 }}>Register</ToggleButton>
+                                <ToggleButton value="login" sx={{flex: 1}}>Login</ToggleButton>
+                                <ToggleButton value="register" sx={{flex: 1}}>Register</ToggleButton>
                             </ToggleButtonGroup>
                         </Box>
 
@@ -138,7 +150,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
                             passwordRef={passwordRef}
                             authMode={authMode}
                             setError={setError}
-                            loading={loading} // Pass loading state to UserAuthForm
+                            loading={loading}
                         />
                     </Box>
                 </Container>
