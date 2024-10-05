@@ -11,6 +11,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
     const [error, setError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [authMode, setAuthMode] = useState('login');
+    const [loading, setLoading] = useState(false); // Add loading state
 
     const nickRef = useRef(null);
     const passwordRef = useRef(null);
@@ -48,15 +49,19 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
     };
 
     const handleRegister = async () => {
+        setLoading(true); // Set loading to true when request starts
         try {
             await axios.post(`${config.API_BASE_URL}/auth/register`, { email: nick, password }, { withCredentials: true });
             await handleLogin();
         } catch (error) {
             setError(error.response?.data?.error || 'Registration failed');
+        } finally {
+            setLoading(false); // Set loading to false when request ends
         }
     };
 
     const handleLogin = async () => {
+        setLoading(true); // Set loading to true when request starts
         try {
             await axios.post(`${config.API_BASE_URL}/auth/login`, { email: nick, password }, { withCredentials: true });
             setIsLoggedIn(true);
@@ -64,6 +69,8 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
             setUsername(username);
         } catch (error) {
             setError(error.response?.status === 401 ? 'Password is incorrect' : error.response?.data?.error || 'Login failed');
+        } finally {
+            setLoading(false); // Set loading to false when request ends
         }
     };
 
@@ -131,6 +138,7 @@ const Authentication = ({ setIsLoggedIn, setUsername }) => {
                             passwordRef={passwordRef}
                             authMode={authMode}
                             setError={setError}
+                            loading={loading} // Pass loading state to UserAuthForm
                         />
                     </Box>
                 </Container>

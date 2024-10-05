@@ -1,4 +1,5 @@
 import axios from 'axios';
+import config from "./config";
 
 export const uploadAndPredictImage = async (file, setImage, setError, appendResults, nextId) => {
     setError(null);
@@ -6,7 +7,7 @@ export const uploadAndPredictImage = async (file, setImage, setError, appendResu
     formData.append('image', file);
 
     try {
-        const response = await axios.post('http://localhost:5000/predictions/predict', formData, {
+        const response = await axios.post(`${config.API_BASE_URL}/predictions/predict`, formData, {
             withCredentials: true,
         });
 
@@ -24,7 +25,7 @@ export const uploadAndPredictImage = async (file, setImage, setError, appendResu
 
         // Save the prediction to the backend
         try {
-            const saveResponse = await axios.post('http://localhost:5000/predictions/save', {
+            const saveResponse = await axios.post(`${config.API_BASE_URL}/predictions/save`, {
                 title: newImage.title,
                 confidence: newImage.confidence,
                 image_src: newImage.src,

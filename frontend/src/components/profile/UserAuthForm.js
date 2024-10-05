@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Box, TextField, Button, Typography } from '@mui/material';
+import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const UserAuthForm = ({
@@ -16,6 +16,7 @@ const UserAuthForm = ({
     setConfirmPassword,
     authMode,
     setError,
+    loading, // Add loading prop
 }) => {
     const confirmPasswordRef = useRef(null);
 
@@ -122,8 +123,9 @@ const UserAuthForm = ({
                 variant="contained"
                 sx={{ mt: 2, backgroundColor: '#0CC0DF' }}
                 onClick={handleSubmit}
+                disabled={loading} // Disable button when loading
             >
-                {buttonLabel}
+                {loading ? <CircularProgress size={24} color="inherit" /> : buttonLabel} {/* Show spinner if loading */}
             </Button>
 
             <Box sx={{ mt: 2, height: '3.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

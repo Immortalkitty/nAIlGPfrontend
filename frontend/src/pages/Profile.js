@@ -54,7 +54,18 @@ const Profile = () => {
     };
 
     if (loading) {
-        return <CircularProgress />;
+        return (
+        <Box
+            sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+            }}
+        >
+            <CircularProgress />
+        </Box>
+    );
     }
 
     return (
