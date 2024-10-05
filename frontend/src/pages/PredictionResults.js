@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PredictionComponent from '../components/predictionResults/PredictionComponent';
 import { Container, Fab } from '@mui/material';
 import { KeyboardArrowUp } from '@mui/icons-material';
@@ -10,7 +10,7 @@ const PredictionResults = () => {
     const [image, setImage] = useState(null);
     const [error, setError] = useState(null);
     const [showScroll, setShowScroll] = useState(false);
-    const isImageBeingProcessed = useRef(false);
+    const [isImageBeingProcessed, setIsImageBeingProcessed] = useState(false);
     const fileInputRef = useRef(null);
     let nextId = useRef(1);
 
@@ -20,7 +20,9 @@ const PredictionResults = () => {
 
     useEffect(() => {
         if (!hasPredicted.current && location.state && location.state.file) {
-            handleFileChange({ target: { files: [location.state.file] } });
+            const file = location.state.file;
+            setIsImageBeingProcessed(true);
+            handleFileProcessing(file);
             hasPredicted.current = true;
         } else if (!location.state || !location.state.file) {
             navigate('/');
@@ -43,27 +45,28 @@ const PredictionResults = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const handleFileProcessing = async (file) => {
+        setError(null);
+        setImage(null);
+
+        try {
+            await uploadAndPredictImage(file, setImage, setError, (newResults) => {
+                setResults((prevResults) => [...prevResults, ...newResults]);
+                nextId.current++;
+            });
+        } catch (err) {
+            console.error('Error processing the image:', err);
+            setError('Error processing the image');
+        } finally {
+            setIsImageBeingProcessed(false);
+        }
+    };
+
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        if (file && !isImageBeingProcessed.current) {
-            isImageBeingProcessed.current = true;
-            setImage(null);
-            setError(null);
-
-            try {
-                await uploadAndPredictImage(file, setImage, setError, (newResults) => {
-                    setResults((prevResults) => [...prevResults, ...newResults]);
-                    nextId.current++;
-                });
-
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
-            } catch (err) {
-                setError('error processing the image');
-            } finally {
-                isImageBeingProcessed.current = false;
-            }
+        if (file) {
+            setIsImageBeingProcessed(true);
+            handleFileProcessing(file);
         }
     };
 
@@ -73,7 +76,7 @@ const PredictionResults = () => {
                 image={image}
                 results={results}
                 error={error}
-                isImageBeingProcessed={isImageBeingProcessed.current}
+                isImageBeingProcessed={isImageBeingProcessed}
                 handleUploadNextClick={handleFileChange}
                 fileInputRef={fileInputRef}
             />
