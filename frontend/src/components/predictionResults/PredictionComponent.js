@@ -75,7 +75,11 @@ const PredictionComponent = ({image, results, error, isImageBeingProcessed, hand
                     ref={fileInputRef}
                     onChange={handleUploadNextClick}
                 />
-                <Button sx={{background: '#0CC0DF'}} variant="contained" onClick={() => fileInputRef.current.click()}>
+                <Button sx={{
+                    background: '#b797d1', '&:hover': {
+                        backgroundColor: '#8a6aa3',
+                    },
+                }} variant="contained" onClick={() => fileInputRef.current.click()}>
                     Upload Next Image
                 </Button>
             </Stack>
@@ -85,7 +89,7 @@ const PredictionComponent = ({image, results, error, isImageBeingProcessed, hand
                     <Typography sx={{p: 4}} align="center" variant="h4" component="h3">
                         Recent results:
                     </Typography>
-                    <Paper elevation={3} sx={{p: 4, background: '#0CC0DF'}}>
+                    <Paper elevation={3} sx={{p: 4, background: '#b797d1'}}>
                         <ResultsGallery results={results}/>
                     </Paper>
                 </Container>

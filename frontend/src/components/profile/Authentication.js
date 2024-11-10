@@ -131,8 +131,23 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
                                 onChange={handleModeChange}
                                 sx={{width: '100%', maxWidth: 300}}
                             >
-                                <ToggleButton value="login" sx={{flex: 1}}>Login</ToggleButton>
-                                <ToggleButton value="register" sx={{flex: 1}}>Register</ToggleButton>
+                                <ToggleButton value="login" sx={{
+                                    flex: 1,
+                                    '&.Mui-selected': {
+                                        backgroundColor: '#b797d1',
+                                        color: 'white',
+                                    },
+                                }}
+                                >Login
+                                </ToggleButton>
+                                <ToggleButton value="register" sx={{
+                                    flex: 1,
+                                    '&.Mui-selected': {
+                                        backgroundColor: '#b797d1',
+                                        color: 'white',
+                                    },
+                                }}
+                                >Register</ToggleButton>
                             </ToggleButtonGroup>
                         </Box>
 

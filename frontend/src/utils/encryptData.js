@@ -1,7 +1,7 @@
 import JSEncrypt from 'jsencrypt';
 
 const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-...
+INSERT PUBLIC KEY HERE
 -----END PUBLIC KEY-----`;
 
 export const encryptData = (data) => {

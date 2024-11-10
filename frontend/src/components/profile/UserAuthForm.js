@@ -1,23 +1,23 @@
-import React, { useEffect, useRef } from 'react';
-import { Box, TextField, Button, Typography, CircularProgress } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, {useEffect, useRef} from 'react';
+import {Box, Button, CircularProgress, TextField, Typography} from '@mui/material';
+import {AnimatePresence, motion} from 'framer-motion';
 
 const UserAuthForm = ({
-    nick,
-    password,
-    setNick,
-    setPassword,
-    handleSubmit,
-    error,
-    buttonLabel,
-    nickRef,
-    passwordRef,
-    confirmPassword,
-    setConfirmPassword,
-    authMode,
-    setError,
-    loading, // Add loading prop
-}) => {
+                          nick,
+                          password,
+                          setNick,
+                          setPassword,
+                          handleSubmit,
+                          error,
+                          buttonLabel,
+                          nickRef,
+                          passwordRef,
+                          confirmPassword,
+                          setConfirmPassword,
+                          authMode,
+                          setError,
+                          loading, // Add loading prop
+                      }) => {
     const confirmPasswordRef = useRef(null);
 
     useEffect(() => {
@@ -57,13 +57,13 @@ const UserAuthForm = ({
     };
 
     const errorVariants = {
-        hidden: { opacity: 0, x: -50 },
-        visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-        exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
+        hidden: {opacity: 0, x: -50},
+        visible: {opacity: 1, x: 0, transition: {duration: 0.5, ease: 'easeOut'}},
+        exit: {opacity: 0, x: 50, transition: {duration: 0.3, ease: 'easeIn'}},
     };
 
     return (
-        <Box sx={{ flex: 1, marginX: 2 }}>
+        <Box sx={{flex: 1, marginX: 2}}>
             <TextField
                 fullWidth
                 label="Username"
@@ -76,6 +76,18 @@ const UserAuthForm = ({
                 }}
                 onFocus={() => setCaretPositionAtEnd(nickRef)}
                 inputRef={nickRef}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                            borderColor: '#8a6aa3',
+                        },
+                    },
+                    '& .MuiInputLabel-root': {
+                        '&.Mui-focused': {
+                            color: '#8a6aa3',
+                        },
+                    },
+                }}
             />
             <TextField
                 fullWidth
@@ -90,15 +102,28 @@ const UserAuthForm = ({
                 }}
                 onFocus={() => setCaretPositionAtEnd(passwordRef)}
                 inputRef={passwordRef}
+                sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': {
+                            borderColor: '#8a6aa3',
+                        },
+                    },
+                    '& .MuiInputLabel-root': {
+                        '&.Mui-focused': {
+                            color: '#8a6aa3',
+                        },
+                    },
+                }}
+
             />
 
             <AnimatePresence>
                 {authMode === 'register' && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{height: 0, opacity: 0}}
+                        animate={{height: 'auto', opacity: 1}}
+                        exit={{height: 0, opacity: 0}}
+                        transition={{duration: 0.3}}
                     >
                         <TextField
                             fullWidth
@@ -113,6 +138,18 @@ const UserAuthForm = ({
                             }}
                             onFocus={() => setCaretPositionAtEnd(confirmPasswordRef)}
                             inputRef={confirmPasswordRef}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: '#8a6aa3',
+                                    },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    '&.Mui-focused': {
+                                        color: '#8a6aa3',
+                                    },
+                                },
+                            }}
                         />
                     </motion.div>
                 )}
@@ -121,14 +158,18 @@ const UserAuthForm = ({
             <Button
                 fullWidth
                 variant="contained"
-                sx={{ mt: 2, backgroundColor: '#0CC0DF' }}
+                sx={{
+                    mt: 2, backgroundColor: '#b797d1', '&:hover': {
+                        backgroundColor: '#8a6aa3',
+                    }
+                }}
                 onClick={handleSubmit}
-                disabled={loading} // Disable button when loading
+                disabled={loading}
             >
-                {loading ? <CircularProgress size={24} color="inherit" /> : buttonLabel} {/* Show spinner if loading */}
+                {loading ? <CircularProgress size={24} color="inherit"/> : buttonLabel} {/* Show spinner if loading */}
             </Button>
 
-            <Box sx={{ mt: 2, height: '3.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Box sx={{mt: 2, height: '3.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 <AnimatePresence mode="wait">
                     {error && (
                         <motion.div

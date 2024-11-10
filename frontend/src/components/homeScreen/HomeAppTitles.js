@@ -11,7 +11,7 @@ export default function HomeAppTitles() {
                 color="text.primary"
                 noWrap
             >
-                Web app for preliminary
+                Medical Imaging Analysis for
             </Typography>
             <Typography
                 component="h2"
@@ -21,10 +21,10 @@ export default function HomeAppTitles() {
                 noWrap
                 gutterBottom
             >
-               diagnosis of nail fungus
+                Breast Cancer Classification
             </Typography>
             <Typography component="h5" variant="h5" align="center" color="text.secondary" paragraph>
-                Upload a photo to test for symptoms of nail fungus
+                Upload a breast ultrasound image to assess severity
             </Typography>
         </div>
     );

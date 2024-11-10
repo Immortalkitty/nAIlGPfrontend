@@ -13,7 +13,7 @@ const ZoomPictureModal = ({ selectedImage, handleClose, isImageValid }) => {
 
     const handleImageError = () => setImageError(true);
 
-    const getProgressBarColor = (title) => title?.toLowerCase().includes('infected') ? 'error' : 'success';
+    const getProgressBarColor = (title) => title?.toLowerCase().includes('malignant') ? 'error' : 'success';
 
     const modalSize = isImageValid && !imageError ? { width: '80vw', height: '80vh' } : { width: '30vw', height: 'auto' };
 

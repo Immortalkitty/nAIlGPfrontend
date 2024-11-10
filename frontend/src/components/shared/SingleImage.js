@@ -18,7 +18,7 @@ const SingleImage = ({ image, onClick }) => {
     const formattedConfidence = `${progress.toFixed(2)}%`;
 
     const getProgressBarColor = (title) => {
-        return title?.toLowerCase().includes('infected') ? 'error' : 'success';
+        return title?.toLowerCase().includes('malignant') ? 'error' : 'success';
     };
 
     const handleImageError = () => {

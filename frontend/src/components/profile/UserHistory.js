@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {Box, Container, Paper, Typography, Button, CircularProgress} from '@mui/material';
+import React, {useEffect, useRef, useState} from 'react';
+import {Box, Button, CircularProgress, Container, Paper, Typography} from '@mui/material';
 import {motion} from 'framer-motion';
 import axios from 'axios';
 import ResultsGallery from '../shared/ResultsGallery';
@@ -66,7 +66,7 @@ const UserHistory = ({isLoggedIn, username}) => {
             >
                 <Box sx={{padding: 1}}>
                     <Typography variant="h3" align="center" sx={{marginBottom: 1, marginTop: 3}}>
-                        Welcome, {username}!
+                        Welcome, {username}
                     </Typography>
 
                     {results.length > 0 ? (
@@ -74,13 +74,17 @@ const UserHistory = ({isLoggedIn, username}) => {
                             <Typography sx={{marginBottom: 6}} align="center" variant="h4" component="h3">
                                 Your Previous Predictions:
                             </Typography>
-                            <Paper elevation={3} sx={{p: 4, background: '#0CC0DF'}}>
+                            <Paper elevation={3} sx={{p: 4, background: '#b797d1'}}>
                                 <ResultsGallery results={results}/>
                                 {loading && <CircularProgress/>}
                                 {hasMore && (
                                     <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}>
                                         <Button onClick={handleLoadMore} variant="contained"
-                                                sx={{background: '#0CC0DF'}}>
+                                                sx={{
+                                                    background: '#b797d1', '&:hover': {
+                                                        backgroundColor: '#8a6aa3',
+                                                    },
+                                                }}>
                                             Load More
                                         </Button>
                                     </Box>
@@ -88,7 +92,7 @@ const UserHistory = ({isLoggedIn, username}) => {
                             </Paper>
                         </>
                     ) : (
-                        <Paper elevation={3} sx={{p: 6, mt: 4, textAlign: 'center', background: '#0CC0DF'}}>
+                        <Paper elevation={3} sx={{p: 6, mt: 4, textAlign: 'center', background: '#b797d1'}}>
                             <Typography variant="h4" component="h3" sx={{mt: 2}}>
                                 No Previous Predictions
                             </Typography>
@@ -97,7 +101,11 @@ const UserHistory = ({isLoggedIn, username}) => {
                                 predicting.
                             </Typography>
                             <Button
-                                sx={{background: '#0CC0DF', mt: 4, padding: '8px 24px'}}
+                                sx={{
+                                    background: '#b797d1', mt: 4, padding: '8px 24px', '&:hover': {
+                                        backgroundColor: '#8a6aa3',
+                                    },
+                                }}
                                 variant="contained"
                                 onClick={() => navigate('/')}
                                 aria-label="Go to Homepage"
