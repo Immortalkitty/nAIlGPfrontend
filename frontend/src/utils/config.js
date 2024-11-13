@@ -1,5 +1,5 @@
 const config = {
-  API_BASE_URL: 'https://3.78.39.14',
+  API_BASE_URL: 'https://nailgpapi.duckdns.org',
 };
 
 export default config;

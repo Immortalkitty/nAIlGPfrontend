@@ -51,11 +51,11 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
     const handleRegister = async () => {
         setLoading(true);
         try {
-            const encryptedEmail = encryptData(nick);
+            const encryptedUsername = encryptData(nick);
             const encryptedPassword = encryptData(password);
 
             await axios.post(`${config.API_BASE_URL}/auth/register`, {
-                email: encryptedEmail,
+                username: encryptedUsername,
                 password: encryptedPassword
             }, {withCredentials: true});
             await handleLogin();
@@ -69,11 +69,11 @@ const Authentication = ({setIsLoggedIn, setUsername}) => {
     const handleLogin = async () => {
         setLoading(true);
         try {
-            const encryptedEmail = encryptData(nick);
+            const encryptedUsername = encryptData(nick);
             const encryptedPassword = encryptData(password);
 
             await axios.post(`${config.API_BASE_URL}/auth/login`, {
-                email: encryptedEmail,
+                username: encryptedUsername,
                 password: encryptedPassword
             }, {withCredentials: true});
             setIsLoggedIn(true);
