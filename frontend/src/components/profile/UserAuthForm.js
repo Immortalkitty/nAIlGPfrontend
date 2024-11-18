@@ -16,7 +16,7 @@ const UserAuthForm = ({
     setConfirmPassword,
     authMode,
     setError,
-    loading, // Add loading prop
+    loading,
 }) => {
     const confirmPasswordRef = useRef(null);
 
@@ -123,9 +123,9 @@ const UserAuthForm = ({
                 variant="contained"
                 sx={{ mt: 2, backgroundColor: '#0CC0DF' }}
                 onClick={handleSubmit}
-                disabled={loading} // Disable button when loading
+                disabled={loading}
             >
-                {loading ? <CircularProgress size={24} color="inherit" /> : buttonLabel} {/* Show spinner if loading */}
+                {loading ? <CircularProgress size={24} color="inherit" /> : buttonLabel}
             </Button>
 
             <Box sx={{ mt: 2, height: '3.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

@@ -6,7 +6,7 @@ import { useOutletContext } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import UserHistory from '../components/profile/UserHistory';
 import Authentication from '../components/profile/Authentication';
-import config from '../utils/config';  // Import config for API base path
+import config from '../utils/config';
 
 const Profile = () => {
     const { isLoggedIn, setIsLoggedIn, username, setUsername } = useOutletContext();

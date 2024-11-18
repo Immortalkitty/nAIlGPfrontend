@@ -75,7 +75,7 @@ const PredictionComponent = ({image, results, error, isImageBeingProcessed, hand
                     ref={fileInputRef}
                     onChange={handleUploadNextClick}
                 />
-                <Button sx={{background: '#0CC0DF'}} variant="contained" onClick={() => fileInputRef.current.click()}>
+                <Button sx={{background: '#0cc0df'}} variant="contained" onClick={() => fileInputRef.current.click()}>
                     Upload Next Image
                 </Button>
             </Stack>
