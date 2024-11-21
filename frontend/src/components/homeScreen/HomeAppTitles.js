@@ -24,7 +24,7 @@ export default function HomeAppTitles() {
                 Breast Cancer Classification
             </Typography>
             <Typography component="h5" variant="h5" align="center" color="text.secondary" paragraph>
-                Upload a breast ultrasound image to assess severity
+                Upload a mammography image to assess severity
             </Typography>
         </div>
     );
