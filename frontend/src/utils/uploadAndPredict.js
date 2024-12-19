@@ -16,7 +16,7 @@ export const uploadAndPredictImage = async (file, setImage, setError, appendResu
             withCredentials: true,
         });
         console.log("Prediction response received:", response.data);
-        const {title, confidence, image_src, filename, message, prediction_id} = response.data;
+        const {title, confidence, image_src, filename, message, prediction_id, text_detected} = response.data;
 
         const newImage = {
             id: `${nextId++}-${Date.now()}`,
@@ -29,6 +29,15 @@ export const uploadAndPredictImage = async (file, setImage, setError, appendResu
         setImage(newImage);
         appendResults([newImage]);
         console.log(message);
+
+        const showTextWarning = () => {
+            alert("Warning: The submitted photo contains data that may affect the prediction, the results may be unreliable!");
+        };
+
+        if (text_detected) {
+            showTextWarning(); // Show the pop-up window if true
+        }
+
     } catch (err) {
         handleErrorResponse(err, setError);
     }
@@ -74,4 +83,5 @@ const handleErrorResponse = (err, setError) => {
         console.error('Error:', err.message);
         setError(`Prediction failed: ${err.message}. Please try again.`);
     }
+    
 };
