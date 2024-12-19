@@ -1,10 +1,9 @@
 import React from 'react';
-import {Box, Dialog, DialogContent, DialogTitle, IconButton, Typography} from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography, List, ListItem, ListItemText, Divider, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import helpPopupContent from './content';
 
-
-const HelpPopup = ({open, onClose}) => {
+const HelpPopup = ({ open, onClose }) => {
     return (
         <Dialog
             open={open}
@@ -18,7 +17,9 @@ const HelpPopup = ({open, onClose}) => {
             }}
         >
             <DialogTitle>
-                {helpPopupContent.title}
+                <Typography variant="h5" fontWeight="fontWeightBold">
+                    {helpPopupContent.title}
+                </Typography>
                 <IconButton
                     aria-label="close"
                     onClick={onClose}
@@ -29,33 +30,45 @@ const HelpPopup = ({open, onClose}) => {
                         color: (theme) => theme.palette.grey[500],
                     }}
                 >
-                    <CloseIcon/>
+                    <CloseIcon />
                 </IconButton>
             </DialogTitle>
             <DialogContent dividers>
-                <Typography gutterBottom>
+                {/* Description */}
+                <Typography variant="body1" gutterBottom>
                     {helpPopupContent.description}
                 </Typography>
-                <Box sx={{display: 'flex', justifyContent: 'center', mt: 4}}>
-                    <Box sx={{mx: 2, textAlign: 'center'}}>
-                        <Box
-                            component="img"
-                            src="/logo192.png"
-                            alt="example1"
-                            sx={{maxWidth: '150px', maxHeight: '150px', width: 'auto', height: 'auto'}}
-                        />
-                        <Typography variant="h6" align="center">{helpPopupContent.correctLabel}</Typography>
+
+                {/* Manual Instructions */}
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }} gutterBottom>
+                    Instructions:
+                </Typography>
+                {helpPopupContent.manual.map((step, index) => (
+                    <Box key={index} mb={2}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} gutterBottom>
+                            {step.title}
+                        </Typography>
+                        <List>
+                            {step.content.map((item, subIndex) => (
+                                <ListItem key={subIndex}>
+                                    <ListItemText primary={item} />
+                                </ListItem>
+                            ))}
+                        </List>
                     </Box>
-                    <Box sx={{mx: 2, textAlign: 'center'}}>
-                        <Box
-                            component="img"
-                            src="/logo192.png"
-                            alt="example1"
-                            sx={{maxWidth: '150px', maxHeight: '150px', width: 'auto', height: 'auto'}}
-                        />
-                        <Typography variant="h6" align="center">{helpPopupContent.incorrectLabel}</Typography>
-                    </Box>
-                </Box>
+                ))}
+
+                {/* Notes */}
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }} gutterBottom>
+                    Notes:
+                </Typography>
+                <List>
+                    {helpPopupContent.notes.map((note, index) => (
+                        <ListItem key={index}>
+                            <ListItemText primary={note} />
+                        </ListItem>
+                    ))}
+                </List>
             </DialogContent>
         </Dialog>
     );
